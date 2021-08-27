@@ -1,7 +1,9 @@
 import { Body, Controller, Get, Post, Request, Res, UseGuards } from '@nestjs/common';
+import { ApiBody, ApiCookieAuth, ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth/auth.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { LocalAuthGuard } from './auth/local-auth.guard';
+import { User } from './user/user.entity';
 import { UsersService } from './user/users.service';
 
 @Controller()
@@ -11,8 +13,9 @@ export class AppController {
     private readonly usersService: UsersService
   ) {}
 
+  @ApiOkResponse({description: 'register'})
   @Post('register')
-  register(@Body() user) {
+  register(@Body() user: User) {
     this.usersService.add(user)
     .then(() => 'OK!')
     .catch((e) => {
@@ -21,6 +24,7 @@ export class AppController {
     });
   }
 
+  @ApiOkResponse({description: 'login'})
   @UseGuards(LocalAuthGuard)
   @Post('auth/login')
   async login(@Request() req, @Res({ passthrough: true }) res) {
@@ -31,6 +35,7 @@ export class AppController {
   }
 
   // редирект на просмотр юзера?
+  @ApiOkResponse({description: 'getProfile'})
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   getProfile(@Request() req) {
