@@ -5,23 +5,19 @@ export class User {
     @PrimaryGeneratedColumn()
     id: number;
 
-    //
-
-    @Column()
+    @Column({nullable: true, unique: true})
     name: string;
 
-    @Column()
+    @Column({nullable: true})
     avatar: number;
 
-    @Column()
+    @Column({nullable: true})
     mail: string;
 
-    @Column()
+    @Column({nullable: true})
     phone: string;
 
-    //
-
-    @Column()
+    @Column({nullable: true})
     hashPassword: string;
 
     @CreateDateColumn()

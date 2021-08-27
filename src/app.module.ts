@@ -1,3 +1,4 @@
+import { AuthModule } from './auth/auth.module';
 import { Module } from '@nestjs/common';
 import {TypeOrmModule} from '@nestjs/typeorm';
 
@@ -14,6 +15,7 @@ import { FilesModule } from './files/files.module';
 @Module({
   imports: [
     ConfigModule.forRoot({load: [configuration]}),
+    AuthModule, 
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => config.get('database'),
