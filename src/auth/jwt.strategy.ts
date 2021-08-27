@@ -9,7 +9,7 @@ const configService: ConfigService = new ConfigService(); // FIXME: костыл
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([req => req?.cookies?.JWTtoken]),
       ignoreExpiration: false,
       secretOrKey: 'secret',  // FIXME:
     });
