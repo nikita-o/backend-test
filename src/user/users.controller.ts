@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Post, Param, Put, Delete } from '@nestjs/common';
+import { Body, Controller, Get, Post, Param, Put, Delete, UseGuards, Req } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './user.entity';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('user')
 export class UsersController {
@@ -11,29 +12,23 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  @Get(':name')
-  get(@Param('name') name: string) {
-    return this.usersService.findByName(name);
+  @Get(':id')
+  get(@Param('id') id: number) {
+    return this.usersService.FindById(id);
   }
 
-  // @Get(':id')
-  // get(@Param('id') id: number) {
-  //   return this.usersService.findOne(id);
-  // }
-
-  @Post()
-  create(@Body() user) {
-    this.usersService.add(user);
+  // убрать?
+  @UseGuards(JwtAuthGuard)
+  @Put() 
+  update(@Req() req, @Body() user) {
+    this.usersService.update(req.user.userId, user);
   }
 
-  @Put(':id')
-  update(@Param('id') id: number, @Body() user) {
-    this.usersService.update(id, user);
-  }
-
-  @Delete(':id')
-  delete(@Param('id') id: number) {
-    this.usersService.remove(id);
+  // убрать?
+  @UseGuards(JwtAuthGuard)
+  @Delete()  
+  delete(@Req() req) {
+    this.usersService.remove(req.user.userId);
   }
 
 }
