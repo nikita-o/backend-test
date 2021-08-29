@@ -4,6 +4,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { Shop } from './entities/shop.entity';
+import { ShopGuard } from './shop.guard';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Module({
     imports: [
@@ -13,6 +15,7 @@ import { Shop } from './entities/shop.entity';
         ShopController, 
     ],
     providers: [
-        ShopService, ],
+        ShopService, 
+    ],
 })
 export class ShopModule {}

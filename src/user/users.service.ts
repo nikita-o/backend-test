@@ -40,12 +40,24 @@ export class UsersService {
     .catch(e => console.error(e)); // TODO: ловить одиннаковое имя
   }  
 
+  // TODO: Удалять также все магазины и продукты?
+  async deleteUser(id: number): Promise<void> {
+    this.usersRepository.delete(id);
+  }
+
   async update(id: number, userDto: UpdateUserDto): Promise<void> {
     let user = this.usersRepository.create({
       name: userDto.name,
-      hashPassword: await bcrypt.hash(userDto.password, 10),
       mail: userDto.mail,
       phone: userDto.phone,
+    });
+
+    await this.usersRepository.update(id, user);
+  }
+
+  async updatePassword(id: number, newPassword: string): Promise<void> {
+    let user = this.usersRepository.create({
+      hashPassword: await bcrypt.hash(newPassword, 10),
     });
 
     await this.usersRepository.update(id, user);

@@ -6,6 +6,7 @@ import { workDBService } from 'src/standartDB.service';
 import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { ShopDto } from './dto/shop.dto';
+import { UpdateShopDto } from './dto/updateShop.dto';
 import { Shop } from './entities/shop.entity';
 
 @Injectable()
@@ -28,6 +29,19 @@ export class ShopService {
   async create(userId: number, shop: Shop): Promise<void | number> {
     shop.idOwnerUser = userId;
     this.shopRepository.save(shop);
+  }
+
+  async update(id: number, shopDto: UpdateShopDto): Promise<void> {
+    const shop = this.shopRepository.create({
+      name: shopDto.name,
+    });
+
+    await this.shopRepository.update(id, shop);
+  }
+
+  // Удалять все товары?
+  async deleteShop(id: number): Promise<void> {
+    this.shopRepository.delete(id);
   }
 
   async FindByUserId(id: number): Promise<Shop[]> {

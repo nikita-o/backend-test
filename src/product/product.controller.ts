@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from 
 import { ApiCookieAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CreateProductDto } from './dto/createProduct.dto';
+import { UpdateProductDto } from './dto/updateProduct.dto';
 import { Product } from './entities/product.entity';
 import { ProductGuard } from './product.guard';
 import { ProductService } from './product.service';
@@ -11,17 +12,17 @@ import { ProductService } from './product.service';
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
-  // @ApiOkResponse({description: 'getAll', type: Product})
-  // @Get()
-  // getAll() {
-  //   return this.productService.findAll();
-  // }
+  @ApiOkResponse({description: 'getAll', type: Product})
+  @Get()
+  getAll() {
+    return this.productService.findAll();
+  }
 
-  // @ApiOkResponse({description: 'getById', type: [Product]})
-  // @Get('id')
-  // getById(@Param('id') id: number) {
-  //   return this.productService.FindById(id);
-  // }
+  @ApiOkResponse({description: 'getById', type: [Product]})
+  @Get('id')
+  getById(@Param('id') id: number) {
+    return this.productService.FindById(id);
+  }
 
   @ApiOkResponse({description: 'create'})
   @ApiCookieAuth()
@@ -31,23 +32,23 @@ export class ProductController {
     this.productService.add(req.user.userId, product);
   }
 
-  // @ApiOkResponse({description: 'delete'})
-  // @ApiCookieAuth()
-  // @UseGuards(JwtAuthGuard)
-  // @UseGuards(ProductGuard)
-  // @Delete(':id')
-  // delete(@Param('id') id: number) {
-  //   this.productService.remove(id);
-  // }
+  @ApiOkResponse({description: 'delete'})
+  @ApiCookieAuth()
+  @UseGuards(JwtAuthGuard)
+  @UseGuards(ProductGuard)
+  @Delete(':id')
+  delete(@Param('id') id: number) {
+    this.productService.deleteProduct(id);
+  }
 
-  // @ApiOkResponse({description: 'update'})
-  // @ApiCookieAuth()
-  // @UseGuards(JwtAuthGuard)
-  // @UseGuards(ProductGuard)
-  // @Put(':id') 
-  // update(@Param('id') id: number, @Body() shop) {
-  //   this.productService.update(id, shop);
-  // }
+  @ApiOkResponse({description: 'update'})
+  @ApiCookieAuth()
+  @UseGuards(JwtAuthGuard)
+  @UseGuards(ProductGuard)
+  @Put(':id') 
+  update(@Param('id') id: number, @Body() shop: UpdateProductDto) {
+    this.productService.update(id, shop);
+  }
 
   @ApiOkResponse({description: 'getPurchase'})
   @ApiCookieAuth()

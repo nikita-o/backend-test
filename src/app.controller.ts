@@ -36,6 +36,12 @@ export class AppController {
     res.cookie('JWTtoken', JWTtoken.access_token, {httpOnly: true});
   }
 
+  // @ApiOkResponse({description: 'logout'})
+  // @Get('logout')
+  // async logout(@Request() req, @Res({ passthrough: true }) res) {    
+  //   req.logout();
+  // }
+
   // редирект на просмотр юзера?
   @ApiOkResponse({description: 'getProfile'})
   @ApiCookieAuth()

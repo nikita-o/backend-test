@@ -9,6 +9,8 @@ import { Status } from './product.constants';
 import { workDBService } from 'src/standartDB.service';
 import { TransactionProduct } from './entities/transactionProduct.entity';
 import { CreateProductDto } from './dto/createProduct.dto';
+import { ProductDto } from './dto/product.dto';
+import { UpdateProductDto } from './dto/updateProduct.dto';
 
 @Injectable()
 export class ProductService {
@@ -18,6 +20,14 @@ export class ProductService {
     @InjectRepository(TransactionProduct)
     private transactionRepository: Repository<TransactionProduct>,
   ) {}
+
+  async findAll(): Promise<ProductDto[]> {
+    return await this.productRepository.find({select: ['id', 'name', 'cost']});
+  }
+
+  async FindById(id: number): Promise<ProductDto | undefined> {
+    return await this.productRepository.findOne(id, {select: ['id', 'name', 'cost']});
+  }
 
   async add(idUser: number, productDto: CreateProductDto): Promise<void | Product> {
     let product = this.productRepository.create({
@@ -32,6 +42,21 @@ export class ProductService {
 
   async findByShopId(idShop: number): Promise<Product[]> {
     return await this.productRepository.find({where: {idShop}});
+  }
+
+  // убрать idShop?
+  async update(id: number, productDto: UpdateProductDto): Promise<void> {
+    const product = this.productRepository.create({
+      name: productDto.name,
+      cost: productDto.cost,
+      idShop: productDto.idShop,
+    });
+
+    await this.productRepository.update(id, product);
+  }
+
+  async deleteProduct(id: number): Promise<void> {
+    this.productRepository.delete(id);
   }
 
   // купленные товары пользователя

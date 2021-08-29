@@ -4,6 +4,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CreateProductDto } from 'src/product/dto/createProduct.dto';
 import { CreateShopDto } from './dto/createShop.dto';
 import { ShopDto } from './dto/shop.dto';
+import { UpdateShopDto } from './dto/updateShop.dto';
 import { Shop } from './entities/shop.entity';
 import { ShopGuard } from './shop.guard';
 import { ShopService } from './shop.service'
@@ -34,23 +35,25 @@ export class ShopController {
     this.shopService.create(req.user.userId, req.body);
   }
 
-  // @ApiOkResponse({description: 'update'})
-  // @ApiCookieAuth()
-  // @UseGuards(JwtAuthGuard)
-  // @UseGuards(ShopGuard)
-  // @Put(':id') 
-  // update(@Param('id') id: number, @Body() shop) {
-  //   this.shopService.update(id, shop);
-  // }
+  @ApiOkResponse({description: 'update'})
+  @ApiCookieAuth()
+  @UseGuards(JwtAuthGuard)
+  @UseGuards(ShopGuard)
+  @Put(':id') 
+  update(@Param('id') id: number, @Body() shop: UpdateShopDto, @Req() req) {
+    //console.log(req.user);
+    
+    this.shopService.update(id, shop);
+  }
 
-  // @ApiOkResponse({description: 'delete'})
-  // @ApiCookieAuth()
-  // @UseGuards(JwtAuthGuard)
-  // @UseGuards(ShopGuard)
-  // @Delete(':id')  
-  // delete(@Param('id') id: number) {
-  //   this.shopService.remove(id);
-  // }
+  @ApiOkResponse({description: 'delete'})
+  @ApiCookieAuth()
+  @UseGuards(JwtAuthGuard)
+  @UseGuards(ShopGuard)
+  @Delete(':id')  
+  delete(@Param('id') id: number) {
+    this.shopService.deleteShop(id);
+  }
   
   @ApiOkResponse({description: 'getSold'})
   @ApiCookieAuth()
