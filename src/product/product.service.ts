@@ -21,15 +21,25 @@ export class ProductService {
     private transactionRepository: Repository<TransactionProduct>,
   ) {}
 
+  async checkOwner(idProduct: number, idOwner: number): Promise<any> {
+    return this.productRepository.findOne(idProduct, {select: ['idOwner']})
+    .then((shop: Product) => {
+      if (shop.idOwner !== idOwner) 
+        throw 'not owner';
+    });
+  }
+
   async findAll(): Promise<ProductDto[]> {
     return await this.productRepository.find({select: ['id', 'name', 'cost']});
   }
 
   async FindById(id: number): Promise<ProductDto | undefined> {
-    return await this.productRepository.findOne(id, {select: ['id', 'name', 'cost']});
+    return await this.productRepository.findOne(id, {select: ['name', 'cost']});
   }
 
   async add(idUser: number, productDto: CreateProductDto): Promise<void | Product> {
+    // FIXME: чекать магазин
+
     let product: Product = this.productRepository.create({
       name: productDto.name,
       cost: productDto.cost,

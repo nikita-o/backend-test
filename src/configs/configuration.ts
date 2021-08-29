@@ -12,6 +12,6 @@ export default () => ({
     },
     JWT: {
         secret: 'secret',
-        signOptions: { expiresIn: '120s' }
+        signOptions: { expiresIn: '30m' }
     }
 });

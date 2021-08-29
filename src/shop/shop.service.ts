@@ -1,9 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Product } from 'src/product/entities/product.entity';
-import { Status } from 'src/product/product.constants';
-import { workDBService } from 'src/standartDB.service';
-import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { ShopDto } from './dto/shop.dto';
 import { UpdateShopDto } from './dto/updateShop.dto';
@@ -18,6 +14,14 @@ export class ShopService {
     // @InjectRepository(Product)
     // private productRepository: Repository<Product>,
   ) {}
+
+  async checkOwner(idShop: number, idOwner: number): Promise<any> {
+    return this.shopRepository.findOne(idShop, {select: ['idOwnerUser']})
+    .then((shop: Shop) => {
+      if (shop.idOwnerUser !== idOwner) 
+        throw 'not owner';
+    });
+  }
 
   async findAll(): Promise<ShopDto[]> {
     return await this.shopRepository.find({select: ['id', 'name', 'idOwnerUser']});

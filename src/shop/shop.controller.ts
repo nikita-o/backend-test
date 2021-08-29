@@ -1,16 +1,18 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Post, Put, Req, UseFilters, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiCookieAuth, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { error } from 'console';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CreateProductDto } from 'src/product/dto/createProduct.dto';
+import { TypeormExceptionFilter } from 'src/typeormException.filter';
 import { CreateShopDto } from './dto/createShop.dto';
 import { ShopDto } from './dto/shop.dto';
 import { UpdateShopDto } from './dto/updateShop.dto';
-import { Shop } from './entities/shop.entity';
-import { ShopGuard } from './shop.guard';
+
 import { ShopService } from './shop.service'
 
 @ApiTags('shop')
 @Controller('shop')
+//@UseFilters(TypeormExceptionFilter)
 export class ShopController {
   constructor(private readonly shopService: ShopService) {}
 
@@ -41,30 +43,51 @@ export class ShopController {
   @ApiOkResponse({description: 'update'})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
-  @UseGuards(ShopGuard)
   @Put(':id') 
-  update(@Param('id') id: number, @Body() shop: UpdateShopDto): void {
-    this.shopService.update(id, shop);
+  async update(@Param('id') id: number, @Body() shop: UpdateShopDto, @Req() req) {
+    await this.shopService.checkOwner(id, req.user.userId)
+    .then(()=>{
+      this.shopService.update(id, shop);
+    })
+    .catch((err)=> {
+      throw new HttpException({
+        message: 'not owner.'
+      }, HttpStatus.BAD_REQUEST);
+    });
   }
 
   @ApiOperation({summary: 'Удалить магазин'})
   @ApiOkResponse({description: 'delete'})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
-  @UseGuards(ShopGuard)
   @Delete(':id')  
-  delete(@Param('id') id: number): void {
-    this.shopService.deleteShop(id);
+  async delete(@Param('id') id: number, @Req() req) {
+    await this.shopService.checkOwner(id, req.user.userId)
+    .then(()=>{
+      this.shopService.deleteShop(id);
+    })
+    .catch((err)=> {
+      throw new HttpException({
+        message: 'not owner.'
+      }, HttpStatus.BAD_REQUEST);
+    });
   }
   
   @ApiOperation({summary: 'Получить продажи магазина'})
   @ApiOkResponse({description: 'getSold'})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
-  @UseGuards(ShopGuard)
   @Get('solds/:id') // переместить в товары?
-  getSold(@Param('id') id: number) {
+  async getSold(@Param('id') id: number, @Req() req) {
+    await this.shopService.checkOwner(id, req.user.userId)
+    .then(()=>{
       return 'getSold';
+    })
+    .catch((err)=> {
+      throw new HttpException({
+        message: 'not owner.'
+      }, HttpStatus.BAD_REQUEST);
+    });;
   }
   
   @ApiOperation({summary: 'Получить аналитику всех магазинов по текущему пользователю'})
@@ -73,18 +96,25 @@ export class ShopController {
   @UseGuards(JwtAuthGuard)
   @Get('analitic')    // переместить в юзеры?
   getAnalitics(@Req() req: any) {
-      return 'getAnalitics';
-      //this.shopService.analiticByUser(req.user);
+    return 'getAnalitics';
+    //this.shopService.analiticByUser(req.user);
   }
 
   @ApiOperation({summary: 'Получить аналитику магазина'})
   @ApiOkResponse({description: 'getAnaliticByShopId'})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
-  @UseGuards(ShopGuard)
   @Get('analitic/:id')
-  getAnaliticByShopId(@Param('id') id: number) {
+  async getAnaliticByShopId(@Param('id') id: number, @Req() req) {
+    await this.shopService.checkOwner(id, req.user.userId)
+    .then(()=>{
       return 'getAnaliticByShopId';
-      //this.shopService.analiticByShopId(id);
+    })
+    .catch((err)=> {
+      throw new HttpException({
+        message: 'not owner.'
+      }, HttpStatus.BAD_REQUEST);
+    });
+    //this.shopService.analiticByShopId(id);
   }
 }

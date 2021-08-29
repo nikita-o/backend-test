@@ -1,14 +1,14 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Post, Request, Res, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
-import { ApiBasicAuth, ApiBody, ApiCookieAuth, ApiOkResponse, ApiOperation, ApiResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, HttpException, HttpStatus, Post, Request, Res, UseGuards} from '@nestjs/common';
+import { ApiBody, ApiCookieAuth, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { AuthService } from './auth/auth.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { LocalAuthGuard } from './auth/local-auth.guard';
 import { AuthUserDto } from './user/dto/authUser.dto';
 import { CreateUserDto } from './user/dto/CreateUser.dto';
-import { User } from './user/entities/user.entity';
 import { UsersService } from './user/users.service';
 
 @Controller()
+//@UseFilters(TypeormExceptionFilter)
 export class AppController {
   constructor(
     private readonly authService: AuthService,
@@ -18,13 +18,14 @@ export class AppController {
   @ApiOperation({summary: 'Регистрация'})
   @ApiOkResponse({description: 'register'})
   @Post('register')
-  @UsePipes(new ValidationPipe({ transform: true }))
-  register(@Body() user: CreateUserDto) {
-    this.usersService.add(user)
-    .then(() => 'OK!')
-    .catch((e) => {
-      console.error(e);
-      return 'FUCK!';
+  async register(@Body() user: CreateUserDto) {
+    await this.usersService.add(user)    
+    .catch((err)=> {
+      if (err.code === '23505') {
+        throw new HttpException({
+          message: 'this name already exists.'
+        }, HttpStatus.BAD_REQUEST);
+      }
     });
   }
 
