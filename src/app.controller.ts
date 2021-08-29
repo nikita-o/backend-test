@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Post, Request, Res, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
-import { ApiBasicAuth, ApiBody, ApiCookieAuth, ApiOkResponse, ApiResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, HttpException, HttpStatus, Post, Request, Res, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import { ApiBasicAuth, ApiBody, ApiCookieAuth, ApiOkResponse, ApiOperation, ApiResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth/auth.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { LocalAuthGuard } from './auth/local-auth.guard';
@@ -15,6 +15,7 @@ export class AppController {
     private readonly usersService: UsersService
   ) {}
 
+  @ApiOperation({summary: 'Регистрация'})
   @ApiOkResponse({description: 'register'})
   @Post('register')
   @UsePipes(new ValidationPipe({ transform: true }))
@@ -27,6 +28,7 @@ export class AppController {
     });
   }
 
+  @ApiOperation({summary: 'Аутификация'})
   @ApiOkResponse({description: 'login'})
   @ApiBody({type: AuthUserDto})
   @UseGuards(LocalAuthGuard)
@@ -43,6 +45,7 @@ export class AppController {
   // }
 
   // редирект на просмотр юзера?
+  @ApiOperation({summary: 'Авторизация'})
   @ApiOkResponse({description: 'getProfile'})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)

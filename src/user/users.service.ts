@@ -28,7 +28,7 @@ export class UsersService {
   }
 
   async add(userDto: CreateUserDto): Promise<void | User> {  
-    let user = this.usersRepository.create({
+    let user: User = this.usersRepository.create({
       name: userDto.name,
       hashPassword: await bcrypt.hash(userDto.password, 10),
       mail: userDto.mail,
@@ -36,8 +36,7 @@ export class UsersService {
     });
 
     this.usersRepository.save(user)
-    .then(user => user.id)
-    .catch(e => console.error(e)); // TODO: ловить одиннаковое имя
+    .catch((e)=>console.log(e.query));
   }  
 
   // TODO: Удалять также все магазины и продукты?
@@ -46,7 +45,7 @@ export class UsersService {
   }
 
   async update(id: number, userDto: UpdateUserDto): Promise<void> {
-    let user = this.usersRepository.create({
+    let user: User = this.usersRepository.create({
       name: userDto.name,
       mail: userDto.mail,
       phone: userDto.phone,
@@ -56,7 +55,7 @@ export class UsersService {
   }
 
   async updatePassword(id: number, newPassword: string): Promise<void> {
-    let user = this.usersRepository.create({
+    let user: User = this.usersRepository.create({
       hashPassword: await bcrypt.hash(newPassword, 10),
     });
 

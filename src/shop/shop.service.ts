@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { ShopDto } from './dto/shop.dto';
 import { UpdateShopDto } from './dto/updateShop.dto';
 import { Shop } from './entities/shop.entity';
+import { CreateShopDto } from './dto/createShop.dto';
 
 @Injectable()
 export class ShopService {
@@ -26,13 +27,16 @@ export class ShopService {
     return await this.shopRepository.findOne(id, {select: ['id', 'name', 'idOwnerUser']});
   }
 
-  async create(userId: number, shop: Shop): Promise<void | number> {
-    shop.idOwnerUser = userId;
+  async create(userId: number, shopDto: CreateShopDto): Promise<void | number> {
+    const shop: Shop = this.shopRepository.create({
+      name: shopDto.name,
+      idOwnerUser: userId,
+    });
     this.shopRepository.save(shop);
   }
 
   async update(id: number, shopDto: UpdateShopDto): Promise<void> {
-    const shop = this.shopRepository.create({
+    const shop: Shop = this.shopRepository.create({
       name: shopDto.name,
     });
 

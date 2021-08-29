@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 
+// Only show, not input form.
 export class UserDto {
     @ApiProperty({
         type: Number,

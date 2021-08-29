@@ -30,7 +30,7 @@ export class ProductService {
   }
 
   async add(idUser: number, productDto: CreateProductDto): Promise<void | Product> {
-    let product = this.productRepository.create({
+    let product: Product = this.productRepository.create({
       name: productDto.name,
       cost: productDto.cost,
       idShop: productDto.idShop,
@@ -46,7 +46,7 @@ export class ProductService {
 
   // убрать idShop?
   async update(id: number, productDto: UpdateProductDto): Promise<void> {
-    const product = this.productRepository.create({
+    const product: Product = this.productRepository.create({
       name: productDto.name,
       cost: productDto.cost,
       idShop: productDto.idShop,
@@ -64,6 +64,7 @@ export class ProductService {
     return await this.productRepository.find({where: {idСustomer: userId, status: Status.sold}});
   }
 
+  // FIXME:
   // корзина пользователя
   async findBasket(idCustomer: number) {
     return await this.transactionRepository.find({where: {idCustomer}});
@@ -85,13 +86,13 @@ export class ProductService {
   }
 
   // покупка
-  async purchaseProduct(idCustomer: number, idProduct: number) {
+  async purchaseProduct(idCustomer: number, idProduct: number): Promise<void> {
     let {idOwner} = await this.productRepository.findOne(idProduct);
     this.transactionRepository.save({idCustomer, idProduct, idOwner});
   }
 
   // подтверждение покупки
-  async proofPurchase(transactionId: number) {
+  async proofPurchase(transactionId: number): Promise<void> {
     let {idCustomer, idProduct} = await this.transactionRepository.findOne(transactionId);
     this.transactionRepository.delete(transactionId);
     this.productRepository.update(idProduct, {status: Status.sold, idСustomer: idCustomer});

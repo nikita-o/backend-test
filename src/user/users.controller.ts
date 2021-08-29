@@ -2,7 +2,7 @@ import { Body, Controller, Get, Post, Param, Put, Delete, UseGuards, Req, HttpCo
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { ApiBody, ApiCookieAuth, ApiOkResponse, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiCookieAuth, ApiOkResponse, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UpdateUserDto } from './dto/updateUser.dto';
 import { UserDto } from './dto/user.dto';
 import { LocalAuthGuard } from 'src/auth/local-auth.guard';
@@ -12,28 +12,30 @@ import { LocalAuthGuard } from 'src/auth/local-auth.guard';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @ApiOperation({summary: 'Вернуть всех пользователей'})
   @ApiOkResponse({description: 'found all', type: [UserDto]})
   @Get()
-  getAll() {
+  getAll(): Promise<UserDto[]> {
     return this.usersService.findAll();
   }
 
+  @ApiOperation({summary: 'Вернуть пользователя по id'})
   @ApiOkResponse({description: 'OK', type: UserDto})
   @Get(':id')
-  async get(@Param('id') id: number) {
-    let user = await this.usersService.FindById(id);
-    
-    return user;
+  get(@Param('id') id: number): Promise<UserDto | undefined> {
+    return this.usersService.FindById(id);
   }
 
+  @ApiOperation({summary: 'Обновить данные текущего пользователя'})
   @ApiOkResponse({description: 'ok'})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Put() 
-  update(@Req() req, @Body() user: UpdateUserDto) {
+  update(@Req() req: any, @Body() user: UpdateUserDto) {
     this.usersService.update(req.user.userId, user);
   }
 
+  // @ApiOperation({summary: 'Обновить пароль текущего пользователя'})
   // @ApiOkResponse({description: 'ok'})
   // @ApiCookieAuth()
   // @UseGuards(JwtAuthGuard)
@@ -44,11 +46,12 @@ export class UsersController {
   // }
 
   // TODO: обнулять время токена! (не достаточно удалить из куки)
+  @ApiOperation({summary: 'Удалить текущего пользователя'})
   @ApiOkResponse({description: 'OK'})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Delete()  
-  delete(@Req() req) {
+  delete(@Req() req: any) {
     this.usersService.deleteUser(req.user.userId);
   }
 }

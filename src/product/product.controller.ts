@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
-import { ApiCookieAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiCookieAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CreateProductDto } from './dto/createProduct.dto';
 import { UpdateProductDto } from './dto/updateProduct.dto';
@@ -12,18 +12,21 @@ import { ProductService } from './product.service';
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
+  @ApiOperation({summary: 'Получить все товары'})
   @ApiOkResponse({description: 'getAll', type: Product})
   @Get()
   getAll() {
     return this.productService.findAll();
   }
 
+  @ApiOperation({summary: 'Получить товар по id'})
   @ApiOkResponse({description: 'getById', type: [Product]})
   @Get('id')
   getById(@Param('id') id: number) {
     return this.productService.FindById(id);
   }
 
+  @ApiOperation({summary: 'Создать товар'})
   @ApiOkResponse({description: 'create'})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
@@ -32,6 +35,7 @@ export class ProductController {
     this.productService.add(req.user.userId, product);
   }
 
+  @ApiOperation({summary: 'Удалить товар'})
   @ApiOkResponse({description: 'delete'})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
@@ -41,6 +45,7 @@ export class ProductController {
     this.productService.deleteProduct(id);
   }
 
+  @ApiOperation({summary: 'Обновить товар'})
   @ApiOkResponse({description: 'update'})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
@@ -50,6 +55,7 @@ export class ProductController {
     this.productService.update(id, shop);
   }
 
+  @ApiOperation({summary: 'Купить товар'})
   @ApiOkResponse({description: 'getPurchase'})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
@@ -58,6 +64,7 @@ export class ProductController {
 
   }
 
+  @ApiOperation({summary: 'Посмотреть корзину'})
   @ApiOkResponse({description: 'getBasket'})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
@@ -66,6 +73,7 @@ export class ProductController {
 
   }
 
+  @ApiOperation({summary: 'Посмотреть проданные товары'})
   @ApiOkResponse({description: 'getSold'})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
