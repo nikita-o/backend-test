@@ -3,15 +3,13 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { Injectable } from '@nestjs/common';
 
-const configService: ConfigService = new ConfigService(); // FIXME: костыль, в конструктор почему то нельзя ConfigService =(
-
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor() {
+  constructor(private configService: ConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([req => req?.cookies?.JWTtoken]),
       ignoreExpiration: false,
-      secretOrKey: 'secret',  // FIXME:
+      secretOrKey: configService.get('JWT.secret'),
     });
   }
 

@@ -1,5 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Shop } from 'src/shop/entities/shop.entity';
+import { User } from 'src/user/entities/user.entity';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne } from 'typeorm';
+import { Status } from '../product.constants';
 @Entity()
 export class Product {
     @PrimaryGeneratedColumn()
@@ -19,13 +22,13 @@ export class Product {
     @Column()
     idOwner: number;
 
-    @Column()
-    status: number;
+    @Column({default: Status.free})
+    status: Status;
 
-    @Column()
+    @Column({nullable: true})
     idСustomer: number;
 
-    @Column()
+    @Column({nullable: true})
     image: number;
 
     //

@@ -1,20 +1,17 @@
-
-import { ApiProperty } from '@nestjs/swagger';
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne } from 'typeorm';
 
 @Entity()
 export class Shop {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ApiProperty({example:'shop name', description:'name'})
     @Column()
     name: string;
     
     @Column()
     idOwnerUser: number;
 
-    @Column()
+    @Column({nullable: true})
     coverShop: number;
 
     @CreateDateColumn()

@@ -7,18 +7,18 @@ export class workDBService<entity> {
     ) {}
   
   async findAll(): Promise<entity[]> {
-      return await this.repository.find();
-    }
+    return await this.repository.find();
+  }
   
   async FindById(id: number): Promise<entity | undefined> {
     return await this.repository.findOne(id);
   }
 
-  async add(obj: entity): Promise<void | entity> {
+  async add(obj: entity | any): Promise<void | entity> {
     return await this.repository.save(obj);
   }
 
-  async update(id: number, obj: entity): Promise<void> {
+  async update(id: number, obj: entity | any): Promise<void> {
     await this.repository.update(id, obj);
   }
 

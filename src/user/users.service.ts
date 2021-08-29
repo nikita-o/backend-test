@@ -1,29 +1,53 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from './user.entity';
+import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { workDBService } from 'src/standartDB.service'
+import { CreateUserDto } from './dto/CreateUser.dto';
+import { UpdateUserDto } from './dto/updateUser.dto';
+import { UserDto } from './dto/user.dto';
 
 @Injectable()
-export class UsersService extends workDBService<User> {
+export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-  ) {
-    super(usersRepository);
+  ) {}
+
+  async findAll(): Promise<UserDto[]> {
+    return await this.usersRepository.find({select: ['id', 'name', 'mail', 'phone']});
+  }
+
+  async FindById(id: number): Promise<UserDto | undefined> {
+    return await this.usersRepository.findOne(id, {select: ['id', 'name', 'mail', 'phone']});
   }
 
   async findByName(name: string): Promise<User | undefined> {
     return await this.usersRepository.findOne({where: {name}});
   }
 
-  async add(user: User): Promise<void | User> {  
-    // TODO: мб соль добавить?
-    user.hashPassword = await bcrypt.hash(user.hashPassword, 10);
+  async add(userDto: CreateUserDto): Promise<void | User> {  
+    let user = this.usersRepository.create({
+      name: userDto.name,
+      hashPassword: await bcrypt.hash(userDto.password, 10),
+      mail: userDto.mail,
+      phone: userDto.phone,
+    });
 
-     this.usersRepository.save(user)
-     .then(user => user.id)
-     .catch(e => console.error(e)); // TODO: ловить одиннаковое имя
+    this.usersRepository.save(user)
+    .then(user => user.id)
+    .catch(e => console.error(e)); // TODO: ловить одиннаковое имя
   }  
+
+  async update(id: number, userDto: UpdateUserDto): Promise<void> {
+    let user = this.usersRepository.create({
+      name: userDto.name,
+      hashPassword: await bcrypt.hash(userDto.password, 10),
+      mail: userDto.mail,
+      phone: userDto.phone,
+    });
+
+    await this.usersRepository.update(id, user);
+  }
 }
