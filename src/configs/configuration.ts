@@ -11,7 +11,10 @@ export default () => ({
         synchronize: true,
     },
     JWT: {
-        secret: 'secret',
+        secret: process.env.JWT_SECRET || 'secret',
         signOptions: { expiresIn: '30m' }
+    },
+    hash: {
+        salt: process.env.HASH_SALT || 10, // not used
     }
 });

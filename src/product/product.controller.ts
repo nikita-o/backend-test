@@ -10,7 +10,7 @@ import { ProductService } from './product.service';
 
 @ApiTags('product')
 @Controller('product')
-//@UseFilters(TypeormExceptionFilter)
+//@UseFilters(TypeormExceptionFilter)   
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
@@ -23,7 +23,7 @@ export class ProductController {
 
   @ApiOperation({summary: 'Получить товар по id'})
   @ApiOkResponse({description: 'getById', type: Product})
-  @Get(':id')
+  @Get('get/:id')
   getById(@Param('id') id: number) {
     return this.productService.FindById(id);
   }
@@ -33,8 +33,14 @@ export class ProductController {
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Req() req, @Body() product: CreateProductDto) {
-    this.productService.add(req.user.userId, product);
+  async create(@Req() req, @Body() product: CreateProductDto) {
+    try { 
+      await this.productService.add(req.user.userId, product);
+    } catch (error) {
+      throw new HttpException({
+        message: 'not owner.'
+      }, HttpStatus.BAD_REQUEST);
+    }
   }
 
   @ApiOperation({summary: 'Удалить товар'})
@@ -58,7 +64,6 @@ export class ProductController {
   @ApiOkResponse({description: 'update'})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
-  @UseGuards(ProductGuard)
   @Put(':id') 
   async update(@Param('id') id: number, @Body() shop: UpdateProductDto, @Req() req) {
     await this.productService.checkOwner(id, req.user.userId)
@@ -76,25 +81,64 @@ export class ProductController {
   @ApiOkResponse({description: 'getPurchase'})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
-  @Get('purchase')
-  getPurchase() {
+  @Get('purchase/:id')
+  getPurchase(@Param('id') idProduct: number, @Req() req) {
+    this.productService.purchaseProduct(req.user.userId, idProduct);
+  }
 
+  @ApiOperation({summary: 'Подтвердить покупку товара'})
+  @ApiCookieAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('proofPurchase/:id')
+  async proofPurchase(@Param('id') idTransaction: number, @Req() req) {
+    try {      
+      await this.productService.proofPurchase(idTransaction, req.user.userId);
+    } catch (error) {
+      throw new HttpException({
+        message: 'not owner.'
+      }, HttpStatus.BAD_REQUEST);
+    }
   }
 
   @ApiOperation({summary: 'Посмотреть корзину'})
-  @ApiOkResponse({description: 'getBasket'})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Get('basket')
-  getBasket() {
-
+  async getBasket(@Req() req) {  
+    return await this.productService.findBasket(req.user.userId);
   }
 
-  @ApiOperation({summary: 'Посмотреть проданные товары'})
+  @ApiOperation({summary: 'Посмотреть товары на подтверждение покупки'})
+  @ApiCookieAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('confirmations')
+  async findProofPurchase(@Req() req) {
+    return await this.productService.findProofPurchase(req.user.userId);
+  }
+
+  @ApiOperation({summary: 'Посмотреть купленные товары'})
   @ApiOkResponse({description: 'getSold'})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
-  @Get('sold')
-  getSold() {
+  @Get('purchasedes')
+  async findPurchase(@Req() req) {
+    return await this.productService.findPurchase(req.user.userId);
+  }
+
+  @ApiOperation({summary: 'Посмотреть проданные товары'})
+  @ApiCookieAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('solds')
+  async getSold(@Req() req) {
+    return await this.productService.findSold(req.user.userId);
+  }
+
+  @ApiOperation({summary: 'Товары на продажу у пользователя'})
+  @ApiOkResponse({description: 'getSold'})
+  @ApiCookieAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('for_sale')
+  async userProducts(@Req() req) {
+    return await this.productService.userProducts(req.user.userId);
   }
 }

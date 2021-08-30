@@ -25,7 +25,7 @@ export class ShopController {
 
   @ApiOperation({summary: 'Получить магазин по id'})
   @ApiOkResponse({description: 'found one', type: ShopDto})
-  @Get(':id')
+  @Get('get/:id')
   getById(@Param('id') id: number): Promise<ShopDto> {
       return this.shopService.FindById(id);
   }
@@ -79,15 +79,15 @@ export class ShopController {
   @UseGuards(JwtAuthGuard)
   @Get('solds/:id') // переместить в товары?
   async getSold(@Param('id') id: number, @Req() req) {
-    await this.shopService.checkOwner(id, req.user.userId)
-    .then(()=>{
-      return 'getSold';
-    })
-    .catch((err)=> {
+    try {
+      await this.shopService.checkOwner(id, req.user.userId)
+    } catch (error) {
       throw new HttpException({
         message: 'not owner.'
       }, HttpStatus.BAD_REQUEST);
-    });;
+    }
+
+    return await this.shopService.getSold(id);
   }
   
   @ApiOperation({summary: 'Получить аналитику всех магазинов по текущему пользователю'})
@@ -96,8 +96,7 @@ export class ShopController {
   @UseGuards(JwtAuthGuard)
   @Get('analitic')    // переместить в юзеры?
   getAnalitics(@Req() req: any) {
-    return 'getAnalitics';
-    //this.shopService.analiticByUser(req.user);
+    return this.shopService.analiticByUser(req.user.userId);
   }
 
   @ApiOperation({summary: 'Получить аналитику магазина'})
@@ -106,15 +105,13 @@ export class ShopController {
   @UseGuards(JwtAuthGuard)
   @Get('analitic/:id')
   async getAnaliticByShopId(@Param('id') id: number, @Req() req) {
-    await this.shopService.checkOwner(id, req.user.userId)
-    .then(()=>{
-      return 'getAnaliticByShopId';
-    })
-    .catch((err)=> {
+    try {
+      await this.shopService.checkOwner(id, req.user.userId)
+    } catch (error) {
       throw new HttpException({
         message: 'not owner.'
       }, HttpStatus.BAD_REQUEST);
-    });
-    //this.shopService.analiticByShopId(id);
+    }
+    return await this.shopService.analiticByShopId(id);
   }
 }

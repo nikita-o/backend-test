@@ -5,14 +5,16 @@ import { ShopDto } from './dto/shop.dto';
 import { UpdateShopDto } from './dto/updateShop.dto';
 import { Shop } from './entities/shop.entity';
 import { CreateShopDto } from './dto/createShop.dto';
+import { Product } from 'src/product/entities/product.entity';
+import { Status } from 'src/product/product.constants';
 
 @Injectable()
 export class ShopService {
   constructor(
     @InjectRepository(Shop)
     private shopRepository: Repository<Shop>,
-    // @InjectRepository(Product)
-    // private productRepository: Repository<Product>,
+    @InjectRepository(Product)
+    private productRepository: Repository<Product>,
   ) {}
 
   async checkOwner(idShop: number, idOwner: number): Promise<any> {
@@ -56,13 +58,36 @@ export class ShopService {
     return await this.shopRepository.find({where: {idOwnerUser: id}, select: ['id', 'name', 'idOwnerUser']});
   }
 
-  // async analiticByUser(user: User) {
-  //   let {id} = user;
+  async getSold(idShop: number): Promise<Product[]> {
+    let x = await this.productRepository.find({where: {idShop, status: Status.sold}});
+    console.log(x);
 
-  // }
+    
+    return x;
+  }
 
-  // async analiticByShopId(idShop: number): Promise<number> {
-  //   let product = await this.productRepository.find({where:{idShop}});
+  async analiticByUser(idUser: number) {
+    const products: Product[] = await this.productRepository.find({where:{idOwner: idUser}});
+    const productPurchased : Product[] = await this.productRepository.find({where:{idСustomer: idUser}});
+    const analitic = {
+      countAllProducts: products.length,
+      countSellProducts: products.filter(product => product.status === Status.sold).length,
+      countFreeProducts: products.filter(product => product.status === Status.free).length,
+      proceeds: products.reduce((sum, product) => sum + product.status === Status.sold ? product.cost : 0, 0),
+      countPurchasedProducts: productPurchased.length,
+      spentMoney: productPurchased.reduce((sum, product) => sum + product.cost, 0),
+    }
+    return analitic;
+  }
 
-  // }
+  async analiticByShopId(idShop: number): Promise<any> {
+    const products: Product[] = await this.productRepository.find({where:{idShop}});
+    const analitic = {
+      countAllProducts: products.length,
+      countSellProducts: products.filter(product => product.status === Status.sold).length,
+      countFreeProducts: products.filter(product => product.status === Status.free).length,
+      proceeds: products.reduce((sum, product) => sum + product.status === Status.sold ? product.cost : 0, 0),
+    }
+    return analitic;
+  }
 }

@@ -11,6 +11,7 @@ import { TransactionProduct } from './entities/transactionProduct.entity';
 import { CreateProductDto } from './dto/createProduct.dto';
 import { ProductDto } from './dto/product.dto';
 import { UpdateProductDto } from './dto/updateProduct.dto';
+import { Shop } from 'src/shop/entities/shop.entity';
 
 @Injectable()
 export class ProductService {
@@ -19,6 +20,8 @@ export class ProductService {
     private productRepository: Repository<Product>,
     @InjectRepository(TransactionProduct)
     private transactionRepository: Repository<TransactionProduct>,
+    @InjectRepository(Shop)
+    private shopRepository: Repository<Shop>,
   ) {}
 
   async checkOwner(idProduct: number, idOwner: number): Promise<any> {
@@ -38,7 +41,10 @@ export class ProductService {
   }
 
   async add(idUser: number, productDto: CreateProductDto): Promise<void | Product> {
-    // FIXME: чекать магазин
+    const shop: Shop = await this.shopRepository.findOne(productDto.idShop, {select: ['idOwnerUser']});
+    if (idUser !== shop?.idOwnerUser)
+      throw 'not owner.'
+
 
     let product: Product = this.productRepository.create({
       name: productDto.name,
@@ -69,42 +75,52 @@ export class ProductService {
     this.productRepository.delete(id);
   }
 
-  // купленные товары пользователя
-  async findPurchase(userId: number): Promise<Product[]> {
-    return await this.productRepository.find({where: {idСustomer: userId, status: Status.sold}});
-  }
-
-  // FIXME:
   // корзина пользователя
-  async findBasket(idCustomer: number) {
-    return await this.transactionRepository.find({where: {idCustomer}});
-  }
-
-  // проданные товары пользователя
-  async findSold(userId: number): Promise<Product[]> {
-    return await this.productRepository.find({where: {idOwner: userId, status: Status.sold}});
-  }
-
-  // товары на продажу у пользователя
-  async userProduct(idOwner: number): Promise<Product[]> {
-    return await this.productRepository.find({where: {idOwner}});
+  async findBasket(idCustomer: number): Promise<Product[]> {
+    const products: TransactionProduct[] = await this.transactionRepository.find({where: {idCustomer}, select: ['idProduct']});
+    return await this.productRepository.findByIds(products.map(product => product.idProduct));
   }
 
   // товары на подтверждение покупки у пользователя
-  async findProofPurchase(userId: number) {
-    return await this.transactionRepository.find({where: {idOwner: userId}});
+  async findProofPurchase(idOwner: number) {
+    const products: TransactionProduct[] =  await this.transactionRepository.find({where: {idOwner}, select: ['idProduct', 'id']});
+    return products;
+    // const idProducts = products.map(product => product.idProduct);
+    // const idTransaction = products.map(product => product.id);
+    // return (await this.productRepository.findByIds(idProducts));
+  }
+
+  // купленные товары пользователя
+  async findPurchase(idСustomer: number): Promise<Product[]> {
+    return await this.productRepository.find({where: {idСustomer, status: Status.sold}});
+  }
+
+  // проданные товары пользователя
+  async findSold(idOwner: number): Promise<Product[]> {
+    return await this.productRepository.find({where: {idOwner, status: Status.sold}});
+  }
+
+  // товары на продажу у пользователя
+  async userProducts(idOwner: number): Promise<Product[]> {
+    return await this.productRepository.find({where: {idOwner, status: Status.free}});
   }
 
   // покупка
   async purchaseProduct(idCustomer: number, idProduct: number): Promise<void> {
     let {idOwner} = await this.productRepository.findOne(idProduct);
-    this.transactionRepository.save({idCustomer, idProduct, idOwner});
+    await this.transactionRepository.save({idCustomer, idOwner, idProduct});
   }
 
   // подтверждение покупки
-  async proofPurchase(transactionId: number): Promise<void> {
-    let {idCustomer, idProduct} = await this.transactionRepository.findOne(transactionId);
-    this.transactionRepository.delete(transactionId);
-    this.productRepository.update(idProduct, {status: Status.sold, idСustomer: idCustomer});
+  async proofPurchase(transactionId: number, idOwner: number): Promise<void> {
+    
+    console.log(transactionId);
+    let transaction: TransactionProduct = await this.transactionRepository.findOne(transactionId);
+    if (transaction.idOwner !== idOwner)
+      throw 'not owner.';
+
+    const products: TransactionProduct[] =  await this.transactionRepository.find({where: {idProduct: transaction.idProduct}, select: ['id']});
+    this.transactionRepository.delete(products.map(product => product.id));
+    this.productRepository.update(transaction.idProduct, {status: Status.sold, idСustomer: transaction.idCustomer});
   }
 }
