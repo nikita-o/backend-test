@@ -50,9 +50,16 @@ export class ShopController {
       this.shopService.update(id, shop);
     })
     .catch((err)=> {
+      if (err === 'not owner.')  {
+        throw new HttpException({
+          message: 'not owner.'
+        }, HttpStatus.BAD_REQUEST);
+      }
+
+      console.error(err);
       throw new HttpException({
-        message: 'not owner.'
-      }, HttpStatus.BAD_REQUEST);
+        message: 'server error'
+      }, HttpStatus.INTERNAL_SERVER_ERROR);
     });
   }
 
@@ -67,9 +74,16 @@ export class ShopController {
       this.shopService.deleteShop(id);
     })
     .catch((err)=> {
+      if (err === 'not owner.')  {
+        throw new HttpException({
+          message: 'not owner.'
+        }, HttpStatus.BAD_REQUEST);
+      }
+      
+      console.error(err);
       throw new HttpException({
-        message: 'not owner.'
-      }, HttpStatus.BAD_REQUEST);
+        message: 'server error'
+      }, HttpStatus.INTERNAL_SERVER_ERROR);
     });
   }
   
@@ -81,10 +95,17 @@ export class ShopController {
   async getSold(@Param('id') id: number, @Req() req) {
     try {
       await this.shopService.checkOwner(id, req.user.userId)
-    } catch (error) {
+    } catch (err) {
+      if (err === 'not owner.')  {
+        throw new HttpException({
+          message: 'not owner.'
+        }, HttpStatus.BAD_REQUEST);
+      }
+      
+      console.error(err);
       throw new HttpException({
-        message: 'not owner.'
-      }, HttpStatus.BAD_REQUEST);
+        message: 'server error'
+      }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     return await this.shopService.getSold(id);
@@ -107,10 +128,17 @@ export class ShopController {
   async getAnaliticByShopId(@Param('id') id: number, @Req() req) {
     try {
       await this.shopService.checkOwner(id, req.user.userId)
-    } catch (error) {
+    } catch (err) {
+      if (err === 'not owner.')  {
+        throw new HttpException({
+          message: 'not owner.'
+        }, HttpStatus.BAD_REQUEST);
+      }
+      
+      console.error(err);
       throw new HttpException({
-        message: 'not owner.'
-      }, HttpStatus.BAD_REQUEST);
+        message: 'server error'
+      }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
     return await this.shopService.analiticByShopId(id);
   }

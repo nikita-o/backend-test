@@ -36,10 +36,17 @@ export class ProductController {
   async create(@Req() req, @Body() product: CreateProductDto) {
     try { 
       await this.productService.add(req.user.userId, product);
-    } catch (error) {
+    } catch (err) {
+      if (err === 'not owner.')  {
+        throw new HttpException({
+          message: 'not owner.'
+        }, HttpStatus.BAD_REQUEST);
+      }
+      
+      console.error(err);
       throw new HttpException({
-        message: 'not owner.'
-      }, HttpStatus.BAD_REQUEST);
+        message: 'server error'
+      }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -54,9 +61,16 @@ export class ProductController {
       this.productService.deleteProduct(id);
     })
     .catch((err)=> {
+      if (err === 'not owner.')  {
+        throw new HttpException({
+          message: 'not owner.'
+        }, HttpStatus.BAD_REQUEST);
+      }
+      
+      console.error(err);
       throw new HttpException({
-        message: 'not owner.'
-      }, HttpStatus.BAD_REQUEST);
+        message: 'server error'
+      }, HttpStatus.INTERNAL_SERVER_ERROR);
     });
   }
 
@@ -71,9 +85,16 @@ export class ProductController {
       this.productService.update(id, shop);
     })
     .catch((err)=> {
+      if (err === 'not owner.')  {
+        throw new HttpException({
+          message: 'not owner.'
+        }, HttpStatus.BAD_REQUEST);
+      }
+      
+      console.error(err);
       throw new HttpException({
-        message: 'not owner.'
-      }, HttpStatus.BAD_REQUEST);
+        message: 'server error'
+      }, HttpStatus.INTERNAL_SERVER_ERROR);
     });
   }
 
@@ -93,10 +114,17 @@ export class ProductController {
   async proofPurchase(@Param('id') idTransaction: number, @Req() req) {
     try {      
       await this.productService.proofPurchase(idTransaction, req.user.userId);
-    } catch (error) {
+    } catch (err) {
+      if (err === 'not owner.')  {
+        throw new HttpException({
+          message: 'not owner.'
+        }, HttpStatus.BAD_REQUEST);
+      }
+      
+      console.error(err);
       throw new HttpException({
-        message: 'not owner.'
-      }, HttpStatus.BAD_REQUEST);
+        message: 'server error'
+      }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 

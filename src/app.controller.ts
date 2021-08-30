@@ -26,6 +26,11 @@ export class AppController {
           message: 'this name already exists.'
         }, HttpStatus.BAD_REQUEST);
       }
+      
+      console.error(err);
+      throw new HttpException({
+        message: 'server error'
+      }, HttpStatus.INTERNAL_SERVER_ERROR);
     });
   }
 
