@@ -4,7 +4,7 @@ import { AuthService } from './auth/auth.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { LocalAuthGuard } from './auth/local-auth.guard';
 import { AuthUserDto } from './user/dto/authUser.dto';
-import { CreateUserDto } from './user/dto/CreateUser.dto';
+import { CreateUserDto } from './user/dto/createUser.dto';
 import { UsersService } from './user/users.service';
 
 @Controller()
