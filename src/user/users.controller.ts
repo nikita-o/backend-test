@@ -13,21 +13,21 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @ApiOperation({summary: 'Вернуть всех пользователей'})
-  @ApiOkResponse({description: 'found all', type: [UserDto]})
+  @ApiOkResponse({description: 'Получены все пользователи', type: [UserDto]})
   @Get()
   getAll(): Promise<UserDto[]> {
     return this.usersService.findAll();
   }
 
   @ApiOperation({summary: 'Вернуть пользователя по id'})
-  @ApiOkResponse({description: 'OK', type: UserDto})
+  @ApiOkResponse({description: 'Получен пользователь', type: UserDto})
   @Get(':id')
   get(@Param('id') id: number): Promise<UserDto | undefined> {
     return this.usersService.FindById(id);
   }
 
   @ApiOperation({summary: 'Обновить данные текущего пользователя'})
-  @ApiOkResponse({description: 'ok'})
+  @ApiOkResponse({description: 'Данные пользователя обновлены'})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Put() 
@@ -47,7 +47,7 @@ export class UsersController {
 
   // TODO: обнулять время токена! (не достаточно удалить из куки)
   @ApiOperation({summary: 'Удалить текущего пользователя'})
-  @ApiOkResponse({description: 'OK'})
+  @ApiOkResponse({description: 'Пользователь удален'})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Delete()  

@@ -1,10 +1,11 @@
 import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Post, Put, Req, UseFilters, UseGuards } from '@nestjs/common';
-import { ApiCookieAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiCookieAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { TypeormExceptionFilter } from 'src/typeormException.filter';
 import { CreateProductDto } from './dto/createProduct.dto';
 import { UpdateProductDto } from './dto/updateProduct.dto';
 import { Product } from './entities/product.entity';
+import { TransactionProduct } from './entities/transactionProduct.entity';
 import { ProductGuard } from './product.guard';
 import { ProductService } from './product.service';
 
@@ -15,21 +16,22 @@ export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @ApiOperation({summary: 'Получить все товары'})
-  @ApiOkResponse({description: 'getAll', type: [Product]})
+  @ApiOkResponse({description: 'Получены все товары', type: [Product]})
   @Get()
   getAll() {
     return this.productService.findAll();
   }
 
   @ApiOperation({summary: 'Получить товар по id'})
-  @ApiOkResponse({description: 'getById', type: Product})
+  @ApiOkResponse({description: 'Получен товар по id', type: Product})
   @Get('get/:id')
   getById(@Param('id') id: number) {
     return this.productService.FindById(id);
   }
 
   @ApiOperation({summary: 'Создать товар'})
-  @ApiOkResponse({description: 'create'})
+  @ApiOkResponse({description: 'Создан товар'})
+  @ApiBadRequestResponse({description: 'Товар не принадлежит пользователю'})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Post()
@@ -51,7 +53,8 @@ export class ProductController {
   }
 
   @ApiOperation({summary: 'Удалить товар'})
-  @ApiOkResponse({description: 'delete'})
+  @ApiOkResponse({description: 'Товар удален'})
+  @ApiBadRequestResponse({description: 'Товар не принадлежит пользователю'})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
@@ -75,7 +78,8 @@ export class ProductController {
   }
 
   @ApiOperation({summary: 'Обновить товар'})
-  @ApiOkResponse({description: 'update'})
+  @ApiOkResponse({description: 'Данные товара обновлены'})
+  @ApiBadRequestResponse({description: 'Товар не принадлежит пользователю'})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Put(':id') 
@@ -99,7 +103,7 @@ export class ProductController {
   }
 
   @ApiOperation({summary: 'Купить товар'})
-  @ApiOkResponse({description: 'getPurchase'})
+  @ApiOkResponse({description: 'Товар в корзине пользователя'})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Get('purchase/:id')
@@ -108,6 +112,8 @@ export class ProductController {
   }
 
   @ApiOperation({summary: 'Подтвердить покупку товара'})
+  @ApiOkResponse({description: 'Подтверждена покупка товара'})
+  @ApiBadRequestResponse({description: 'Товар не принадлежит пользователю'})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Get('proofPurchase/:id')
@@ -129,6 +135,7 @@ export class ProductController {
   }
 
   @ApiOperation({summary: 'Посмотреть корзину'})
+  @ApiOkResponse({description: 'Получена корзина покупок пользователя', type: [Product]})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Get('basket')
@@ -137,6 +144,7 @@ export class ProductController {
   }
 
   @ApiOperation({summary: 'Посмотреть товары на подтверждение покупки'})
+  @ApiOkResponse({description: 'Получены товары на подтверждение покупки', type: [TransactionProduct]})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Get('confirmations')
@@ -145,7 +153,7 @@ export class ProductController {
   }
 
   @ApiOperation({summary: 'Посмотреть купленные товары'})
-  @ApiOkResponse({description: 'getSold'})
+  @ApiOkResponse({description: 'Получены купленные товары', type: [Product]})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Get('purchasedes')
@@ -154,6 +162,7 @@ export class ProductController {
   }
 
   @ApiOperation({summary: 'Посмотреть проданные товары'})
+  @ApiOkResponse({description: 'Получены проданные товары', type: [Product]})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Get('solds')
@@ -162,7 +171,7 @@ export class ProductController {
   }
 
   @ApiOperation({summary: 'Товары на продажу у пользователя'})
-  @ApiOkResponse({description: 'getSold'})
+  @ApiOkResponse({description: 'Получены товары на продажу', type: [Product]})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Get('for_sale')

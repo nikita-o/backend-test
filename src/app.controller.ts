@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpException, HttpStatus, Post, Request, Res, UseGuards} from '@nestjs/common';
-import { ApiBody, ApiCookieAuth, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiBody, ApiCookieAuth, ApiInternalServerErrorResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { AuthService } from './auth/auth.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { LocalAuthGuard } from './auth/local-auth.guard';
@@ -16,11 +16,12 @@ export class AppController {
   ) {}
 
   @ApiOperation({summary: 'Регистрация'})
-  @ApiOkResponse({description: 'register'})
+  @ApiOkResponse({description: 'Успешная регистрация'})
+  @ApiBadRequestResponse({description: 'Такое имя уже существует'})
   @Post('register')
   async register(@Body() user: CreateUserDto) {
     await this.usersService.add(user)    
-    .catch((err)=> {
+    .catch((err)=> {  // FIXME: попытаться лучше сделать исключения, а то это кринж
       if (err.code === '23505') {
         throw new HttpException({
           message: 'this name already exists.'
@@ -34,8 +35,8 @@ export class AppController {
     });
   }
 
-  @ApiOperation({summary: 'Аутификация'})
-  @ApiOkResponse({description: 'login'})
+  @ApiOperation({summary: 'Авторизация'})
+  @ApiOkResponse({description: 'Успешная авторизация'})
   @ApiBody({type: AuthUserDto})
   @UseGuards(LocalAuthGuard)
   @Post('auth/login')
@@ -51,12 +52,12 @@ export class AppController {
   // }
 
   // редирект на просмотр юзера?
-  @ApiOperation({summary: 'Авторизация'})
-  @ApiOkResponse({description: 'getProfile'})
-  @ApiCookieAuth()
-  @UseGuards(JwtAuthGuard)
-  @Get('profile')
-  getProfile(@Request() req) {
-    return req.user;
-  }
+  // @ApiOperation({summary: 'Авторизация'})
+  // @ApiOkResponse({description: 'getProfile'})
+  // @ApiCookieAuth()
+  // @UseGuards(JwtAuthGuard)
+  // @Get('profile')
+  // getProfile(@Request() req) {
+  //   return req.user;
+  // }
 }

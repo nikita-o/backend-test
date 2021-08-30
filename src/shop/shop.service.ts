@@ -49,7 +49,7 @@ export class ShopService {
     await this.shopRepository.update(id, shop);
   }
 
-  // Удалять все товары?
+  // TODO: Удалять все товары?
   async deleteShop(id: number): Promise<void> {
     this.shopRepository.delete(id);
   }
@@ -59,14 +59,10 @@ export class ShopService {
   }
 
   async getSold(idShop: number): Promise<Product[]> {
-    let x = await this.productRepository.find({where: {idShop, status: Status.sold}});
-    console.log(x);
-
-    
-    return x;
+    return await this.productRepository.find({where: {idShop, status: Status.sold}});
   }
 
-  async analiticByUser(idUser: number) {
+  async analiticByUser(idUser: number): Promise<any> {
     const products: Product[] = await this.productRepository.find({where:{idOwner: idUser}});
     const productPurchased : Product[] = await this.productRepository.find({where:{idСustomer: idUser}});
     const analitic = {

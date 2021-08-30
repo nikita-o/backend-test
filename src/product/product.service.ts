@@ -2,9 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { createQueryBuilder, Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
-
-
-
 import { Status } from './product.constants';
 import { workDBService } from 'src/standartDB.service';
 import { TransactionProduct } from './entities/transactionProduct.entity';
@@ -60,7 +57,7 @@ export class ProductService {
     return await this.productRepository.find({where: {idShop}});
   }
 
-  // убрать idShop?
+  // TODO: убрать idShop?
   async update(id: number, productDto: UpdateProductDto): Promise<void> {
     const product: Product = this.productRepository.create({
       name: productDto.name,

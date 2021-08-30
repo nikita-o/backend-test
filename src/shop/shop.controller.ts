@@ -1,8 +1,9 @@
 import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Post, Put, Req, UseFilters, UseGuards } from '@nestjs/common';
-import { ApiBody, ApiCookieAuth, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiBody, ApiCookieAuth, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { error } from 'console';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CreateProductDto } from 'src/product/dto/createProduct.dto';
+import { Product } from 'src/product/entities/product.entity';
 import { TypeormExceptionFilter } from 'src/typeormException.filter';
 import { CreateShopDto } from './dto/createShop.dto';
 import { ShopDto } from './dto/shop.dto';
@@ -17,21 +18,21 @@ export class ShopController {
   constructor(private readonly shopService: ShopService) {}
 
   @ApiOperation({summary: 'Получить все магазины'})
-  @ApiOkResponse({description: 'found all', type: [ShopDto]})
+  @ApiOkResponse({description: 'Получены все магазины', type: [ShopDto]})
   @Get()
   getAll(): Promise<ShopDto[]> {
       return this.shopService.findAll();
   }
 
   @ApiOperation({summary: 'Получить магазин по id'})
-  @ApiOkResponse({description: 'found one', type: ShopDto})
+  @ApiOkResponse({description: 'Получен магазин по id', type: ShopDto})
   @Get('get/:id')
   getById(@Param('id') id: number): Promise<ShopDto> {
       return this.shopService.FindById(id);
   }
 
   @ApiOperation({summary: 'Создать магазин'})
-  @ApiCreatedResponse({description: 'create'})
+  @ApiOkResponse({description: 'Создан магазин'})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Post()
@@ -40,7 +41,8 @@ export class ShopController {
   }
 
   @ApiOperation({summary: 'Обновить магазин'})
-  @ApiOkResponse({description: 'update'})
+  @ApiOkResponse({description: 'Данные магазина обновлены'})
+  @ApiBadRequestResponse({description: 'Магазин не принадлежит пользователю'})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Put(':id') 
@@ -64,7 +66,8 @@ export class ShopController {
   }
 
   @ApiOperation({summary: 'Удалить магазин'})
-  @ApiOkResponse({description: 'delete'})
+  @ApiOkResponse({description: 'Магазин удален'})
+  @ApiBadRequestResponse({description: 'Магазин не принадлежит пользователю'})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Delete(':id')  
@@ -88,14 +91,16 @@ export class ShopController {
   }
   
   @ApiOperation({summary: 'Получить продажи магазина'})
-  @ApiOkResponse({description: 'getSold'})
+  @ApiOkResponse({description: 'Получены продажи', type: [Product]})
+  @ApiBadRequestResponse({description: 'Магазин не принадлежит пользователю'})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
-  @Get('solds/:id') // переместить в товары?
+  @Get('solds/:id')
   async getSold(@Param('id') id: number, @Req() req) {
     try {
       await this.shopService.checkOwner(id, req.user.userId)
-    } catch (err) {
+      return await this.shopService.getSold(id);
+    } catch (err) { // FIXME: А здесь еще "лучше" try catch... фильтр исключений надо бы по человечески
       if (err === 'not owner.')  {
         throw new HttpException({
           message: 'not owner.'
@@ -107,27 +112,27 @@ export class ShopController {
         message: 'server error'
       }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
-    return await this.shopService.getSold(id);
   }
   
   @ApiOperation({summary: 'Получить аналитику всех магазинов по текущему пользователю'})
-  @ApiOkResponse({description: 'getAnalitics'})
+  @ApiOkResponse({description: 'Получена аналитика'})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
-  @Get('analitic')    // переместить в юзеры?
+  @Get('analitic')
   getAnalitics(@Req() req: any) {
     return this.shopService.analiticByUser(req.user.userId);
   }
 
   @ApiOperation({summary: 'Получить аналитику магазина'})
-  @ApiOkResponse({description: 'getAnaliticByShopId'})
+  @ApiOkResponse({description: 'Получена аналитика'})
+  @ApiBadRequestResponse({description: 'Магазин не принадлежит пользователю'})
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Get('analitic/:id')
   async getAnaliticByShopId(@Param('id') id: number, @Req() req) {
     try {
       await this.shopService.checkOwner(id, req.user.userId)
+      return await this.shopService.analiticByShopId(id);
     } catch (err) {
       if (err === 'not owner.')  {
         throw new HttpException({
@@ -140,6 +145,5 @@ export class ShopController {
         message: 'server error'
       }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    return await this.shopService.analiticByShopId(id);
   }
 }
