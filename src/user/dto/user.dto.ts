@@ -15,13 +15,13 @@ export class UserDto {
 
     @ApiProperty({
         type: String,
-        default: 'mail',
+        default: 'mail@mail.com',
     })
     mail: string;
 
     @ApiProperty({
         type: String,
-        default: 'phone',
+        default: '+78005553535',
     })
     phone: string;
 }

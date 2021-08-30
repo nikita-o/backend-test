@@ -28,7 +28,7 @@ export class CreateUserDto {
 
     @ApiProperty({
         type: String,
-        default: '8-999-777-77-88',
+        default: '+78005553535',
     })
     @IsOptional()
     @IsPhoneNumber()
