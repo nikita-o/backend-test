@@ -9,18 +9,18 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
   app.use(cookieParser());
-  const config: ConfigService = app.get(ConfigService)
+  const config: ConfigService = app.get(ConfigService);
 
   app.useGlobalPipes(new ValidationPipe());
 
   const configSwagger = new DocumentBuilder()
-  .setTitle('WORK API')
-  .setDescription('API description')
-  .addTag('user')
-  .addTag('shop')
-  .addTag('product')
-  .addCookieAuth('JWTtoken')
-  .build();
+    .setTitle('WORK API')
+    .setDescription('API description')
+    .addTag('user')
+    .addTag('shop')
+    .addTag('product')
+    .addCookieAuth('JWTtoken')
+    .build();
   const document = SwaggerModule.createDocument(app, configSwagger);
   SwaggerModule.setup('api', app, document);
 
