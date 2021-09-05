@@ -8,10 +8,10 @@ import { Shop } from './shop.entity';
 @Entity()
 export class ProductRest {
   @ManyToOne(type => Shop, { primary: true })
-  shop: number;
+  shop: Shop;
 
   @ManyToOne(type => Product, { primary: true })
-  product: number;
+  product: Product;
 
   @Column()
   count: number;
