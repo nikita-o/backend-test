@@ -25,7 +25,7 @@ export class AuthService {
     return (await this.userRepository.save(newUser)).id;
   }
 
-  async validateUser(username: string, password: string): Promise<any> {
+  async validateUser(username: string, password: string): Promise<User | null> {
     const user: User = await this.userRepository.findOne({
       where: {
         name: username,
@@ -33,14 +33,14 @@ export class AuthService {
     });
 
     if (user && (await bcrypt.compare(password, user.hashPassword))) {
-      const { hashPassword, ...result } = user;
-      return result;
+      delete user.hashPassword;
+      return user;
     }
     return null;
   }
 
   login(user: User): string {
-    const payload = { username: user.name, sub: user.id };
+    const payload = { ...user };
     const token: string = this.jwtService.sign(payload);
     return token;
   }

@@ -16,10 +16,9 @@ module.exports = {
   },
   ignorePatterns: ['.eslintrc.js'],
   rules: {
-    //'@typescript-eslint/interface-name-prefix': 'warn',
     '@typescript-eslint/explicit-function-return-type': 'warn',
     '@typescript-eslint/explicit-module-boundary-types': 'warn',
-    '@typescript-eslint/no-explicit-any': 'warn',
+    '@typescript-eslint/no-explicit-any': 'off',
     'prettier/prettier': [
       'error',
       {

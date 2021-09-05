@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable prettier/prettier */
+
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Product } from './product.entity';
 import { Shop } from './shop.entity';
@@ -14,7 +17,7 @@ export class Basket {
   @PrimaryGeneratedColumn()
   rowId: number;
 
-  @ManyToOne(type => Product)
+  @ManyToOne(type => Product) // TODO: one to one?
   product: Product;
 
   @Column()
