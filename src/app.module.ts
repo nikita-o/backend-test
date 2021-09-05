@@ -1,3 +1,4 @@
+import { PurchaseModule } from './modules/purchase/purchase.module';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
@@ -22,6 +23,7 @@ import { ProductModule } from './modules/product/product.module';
     UserModule,
     ShopModule,
     ProductModule,
+    PurchaseModule,
   ],
   controllers: [AppController],
   providers: [],

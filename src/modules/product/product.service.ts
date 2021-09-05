@@ -5,7 +5,7 @@ import { ProductRest } from 'src/entities/productRest.entity';
 import { Shop } from 'src/entities/shop.entity';
 import { User } from 'src/entities/user.entity';
 import { Repository } from 'typeorm';
-import { AddProductRestDto } from './dto/AddProductRestDto.dto';
+import { AddProductRestDto } from './dto/addProductRestDto.dto';
 import { CreateProductDto } from './dto/createProductDto.dto';
 import { UpdateProductDto } from './dto/updateProductDto.dto';
 

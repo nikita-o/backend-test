@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable prettier/prettier */
 
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { type } from 'os';
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryColumn, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { OrderContent } from './orderContent.entity';
 import { Shop } from './shop.entity';
 import { User } from './user.entity';
 
@@ -27,4 +29,9 @@ export class Order {
 
   @UpdateDateColumn()
   updateAt: Date;
+
+  // ---
+
+  @OneToMany(type => OrderContent, orderContent => orderContent.order, {onDelete: 'CASCADE'})
+  ordersContent: OrderContent[]
 }

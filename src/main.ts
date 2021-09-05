@@ -24,6 +24,7 @@ async function bootstrap(): Promise<void> {
     .addTag('user')
     .addTag('shop')
     .addTag('product')
+    .addTag('purchase')
     .addCookieAuth('JWTtoken')
     .build();
   const document = SwaggerModule.createDocument(app, configSwagger);

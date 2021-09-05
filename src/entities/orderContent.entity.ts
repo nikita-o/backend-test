@@ -1,14 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable prettier/prettier */
 
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { Order } from './order.entity';
 import { Product } from './product.entity';
 
 @Entity()
 export class OrderContent {
-  @ManyToOne(type => Order, { primary: true })
-  order: Order;
+  @PrimaryColumn({name: 'orderId'})
+  @ManyToOne(type => Order)
+  order: Order | number;
 
   @PrimaryGeneratedColumn()
   rowId: number;
