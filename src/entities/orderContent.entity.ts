@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable prettier/prettier */
 
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { Order } from './order.entity';
 import { Product } from './product.entity';
 
@@ -13,7 +13,7 @@ export class OrderContent {
   @PrimaryGeneratedColumn()
   rowId: number;
 
-  @ManyToOne(type => Product) // TODO: one to one?
+  @ManyToOne(type => Product)
   product: Product;
 
   @Column()
@@ -24,4 +24,10 @@ export class OrderContent {
 
   @Column()
   sum: number;
+
+  @CreateDateColumn()
+  createAt: Date;
+
+  @UpdateDateColumn()
+  updateAt: Date;
 }

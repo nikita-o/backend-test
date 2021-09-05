@@ -1,10 +1,10 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 
 @Injectable()
-export class CheckGuard implements CanActivate {
+export class CheckNameGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
-    //console.log(request.user);
+    //console.log(request);
     return true;
   }
 }

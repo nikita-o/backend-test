@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable prettier/prettier */
 
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { Product } from './product.entity';
 import { Shop } from './shop.entity';
 import { User } from './user.entity';
@@ -17,9 +17,15 @@ export class Basket {
   @PrimaryGeneratedColumn()
   rowId: number;
 
-  @ManyToOne(type => Product) // TODO: one to one?
+  @ManyToOne(type => Product)
   product: Product;
 
   @Column()
   count: number;
+
+  @CreateDateColumn()
+  createAt: Date;
+
+  @UpdateDateColumn()
+  updateAt: Date;
 }

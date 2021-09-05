@@ -1,16 +1,28 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable prettier/prettier */
 
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ nullable: true, unique: true })
+  @Column({unique: true })
   name: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true})
+  mail: string;
+
+  @Column({ nullable: true})
+  phone: string;
+
+  @Column()
   hashPassword: string;
+
+  @CreateDateColumn()
+  createAt: Date;
+
+  @UpdateDateColumn()
+  updateAt: Date;
 }
