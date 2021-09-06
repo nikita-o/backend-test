@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
 import { User } from 'src/entities/user.entity';
-import { Repository } from 'typeorm';
+import { QueryFailedError, Repository } from 'typeorm';
 import { RegistrationDto } from './dto/registration.dto';
 import { LoginDto } from './dto/login.dto';
 
@@ -16,13 +16,18 @@ export class AuthService {
     private userRepository: Repository<User>,
   ) {}
 
-  async registration(userDto: RegistrationDto): Promise<number> {
+  async registration(userDto: RegistrationDto): Promise<void> {
     const newUser: User = this.userRepository.create({
       name: userDto.name,
       hashPassword: await bcrypt.hash(userDto.password, 10),
     });
 
-    return (await this.userRepository.save(newUser)).id;
+    await this.userRepository.save(newUser).catch((error: QueryFailedError) => {
+      throw new HttpException(
+        'this name is already taken',
+        HttpStatus.CONFLICT,
+      );
+    });
   }
 
   async validateUser(username: string, password: string): Promise<User | null> {

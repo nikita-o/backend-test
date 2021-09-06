@@ -24,7 +24,6 @@ import { AddProductRestDto } from './dto/addProductRestDto.dto';
 import { CreateProductDto } from './dto/createProductDto.dto';
 import { GetProductInShopDto } from './dto/getProductInShop.dto';
 import { UpdateProductDto } from './dto/updateProductDto.dto';
-import { CheckGuard } from './guards/checkOwnerProduct.guard';
 import { ProductService } from './product.service';
 
 @ApiTags('product')
@@ -46,8 +45,12 @@ export class ProductController {
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Post('addInShop')
-  async addToStore(@Body() productRest: AddProductRestDto): Promise<void> {
+  async addToStore(
+    @Body() productRest: AddProductRestDto,
+    @Req() req,
+  ): Promise<void> {
     const { shopId, productId, count } = productRest;
+    await this.productService.checkProduct(req.user.id, productId);
     await this.productService.addToStore(shopId, productId, count);
   }
 
@@ -78,22 +81,25 @@ export class ProductController {
   @ApiOkResponse({ description: 'Успешно' })
   @ApiOperation({ summary: 'Обновление товара по id' })
   @ApiCookieAuth()
-  @UseGuards(JwtAuthGuard, CheckGuard)
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   async update(
-    @Param('id') id: number,
+    @Param('id') productId: number,
     @Body() product: UpdateProductDto,
+    @Req() req,
   ): Promise<void> {
-    await this.productService.update(id, product);
+    await this.productService.checkProduct(req.user.id, productId);
+    await this.productService.update(productId, product);
   }
 
   @ApiOkResponse({ description: 'Успешно' })
   @ApiOperation({ summary: 'Удаление товара по id' })
   @ApiCookieAuth()
-  @UseGuards(JwtAuthGuard, CheckGuard)
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  async delete(@Param('id') id: number): Promise<void> {
-    await this.productService.delete(id);
+  async delete(@Param('id') productId: number, @Req() req): Promise<void> {
+    await this.productService.checkProduct(req.user.id, productId);
+    await this.productService.delete(productId);
   }
 
   @ApiOkResponse({ description: 'Успешно' })

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from 'src/entities/product.entity';
 import { ProductRest } from 'src/entities/productRest.entity';
@@ -19,6 +19,14 @@ export class ProductService {
     @InjectRepository(ProductRest)
     private productRestRepository: Repository<ProductRest>,
   ) {}
+
+  async checkProduct(userId: number, productId: number) {
+    await this.productRepository
+      .findOneOrFail(productId, { where: { owner: userId } })
+      .catch(e => {
+        throw new HttpException('no owner product', HttpStatus.CONFLICT);
+      });
+  }
 
   async create(productDto: CreateProductDto, owner: User): Promise<void> {
     const product: Product = this.productRepository.create({

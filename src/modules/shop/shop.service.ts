@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Shop } from 'src/entities/shop.entity';
 import { User } from 'src/entities/user.entity';
@@ -12,6 +12,14 @@ export class ShopService {
     @InjectRepository(Shop)
     private shopRepository: Repository<Shop>,
   ) {}
+
+  async checkShop(userId: number, shopId: number) {
+    await this.shopRepository
+      .findOneOrFail(shopId, { where: { owner: userId } })
+      .catch(e => {
+        throw new HttpException('no owner shop', HttpStatus.CONFLICT);
+      });
+  }
 
   async create(shopDto: CreateShopDto, owner: User): Promise<void> {
     const shop: Shop = this.shopRepository.create({
@@ -51,19 +59,10 @@ export class ShopService {
   }
 
   async update(id: number, userDto: UpdateShopDto): Promise<void> {
-    // const user: User = this.shopRepository.create({
-    //   name: userDto.name,
-    // });
     await this.shopRepository.update(id, userDto);
   }
 
   async delete(id: number): Promise<void> {
     await this.shopRepository.delete(id);
   }
-
-  // async getStatistics(): Promise<> {
-  // }
-
-  // async getStatisticsInPeriod(): Promise<> {
-  // }
 }

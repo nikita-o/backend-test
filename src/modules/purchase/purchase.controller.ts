@@ -45,7 +45,7 @@ export class PurchaseController {
 
   @ApiOperation({ summary: 'Удаление товара из корзины' })
   @ApiCreatedResponse({ description: 'Успешно' })
-  @Delete('addCart')
+  @Delete('deleteCart')
   async deleteCart(
     @Query('shopId', ParseIntPipe) shopId: number,
     @Query('rowId', ParseIntPipe) rowId: number,
@@ -79,7 +79,9 @@ export class PurchaseController {
   @Get('showPurchaseShop')
   async showPurchaseShop(
     @Query('shopId', ParseIntPipe) shopId: number,
+    @Req() req,
   ): Promise<Order[]> {
+    await this.purchaseService.checkShop(req.user.id, shopId);
     return await this.purchaseService.showPurchaseShop(shopId);
   }
 
@@ -88,7 +90,9 @@ export class PurchaseController {
   @Post('sellerProofPurchase')
   async sellerProofPurchase(
     @Query('orderId', ParseIntPipe) orderId: number,
+    @Req() req,
   ): Promise<void> {
+    await this.purchaseService.checkPurchase(req.user.id, orderId);
     await this.purchaseService.sellerProofPurchase(orderId);
   }
 
@@ -97,7 +101,9 @@ export class PurchaseController {
   @Delete('sellerProofPurchase')
   async sellerRejectionPurchase(
     @Query('orderId', ParseIntPipe) orderId: number,
+    @Req() req,
   ): Promise<void> {
+    await this.purchaseService.checkPurchase(req.user.id, orderId);
     await this.purchaseService.sellerRejectionPurchase(orderId);
   }
 
@@ -106,7 +112,9 @@ export class PurchaseController {
   @Get('showAllPurchaseShop')
   async showAllPurchaseShop(
     @Query('shopId', ParseIntPipe) shopId: number,
+    @Req() req,
   ): Promise<Order[]> {
+    await this.purchaseService.checkShop(req.user.id, shopId);
     return await this.purchaseService.showAllPurchaseShop(shopId);
   }
 }

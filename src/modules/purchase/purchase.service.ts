@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Basket } from 'src/entities/basket.entity';
 import { Order } from 'src/entities/order.entity';
@@ -24,6 +24,22 @@ export class PurchaseService {
     @InjectRepository(OrderContent)
     private orderContentRepository: Repository<OrderContent>,
   ) {}
+
+  async checkPurchase(userId: number, orderId: number) {
+    await this.orderRepository
+      .findOneOrFail(orderId, { where: { owner: userId } })
+      .catch(() => {
+        throw new HttpException('no owner purchase', HttpStatus.CONFLICT);
+      });
+  }
+
+  async checkShop(userId: number, shopId: number) {
+    await this.shopRepository
+      .findOneOrFail(shopId, { where: { owner: userId } })
+      .catch(e => {
+        throw new HttpException('no owner shop', HttpStatus.CONFLICT);
+      });
+  }
 
   async addCart(
     shopId: number,

@@ -9,12 +9,17 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiCookieAuth, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiCookieAuth,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Shop } from 'src/entities/shop.entity';
 import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
 import { CreateShopDto } from './dto/createShopDto.dto';
 import { UpdateShopDto } from './dto/updateShopDto.dto';
-import { CheckGuard } from './guards/checkOwner.guard';
 import { ShopService } from './shop.service';
 
 @ApiTags('shop')
@@ -28,7 +33,7 @@ export class ShopController {
   @UseGuards(JwtAuthGuard)
   @Post()
   async create(@Req() req, @Body() shop: CreateShopDto): Promise<void> {
-    this.shopService.create(shop, req.user);
+    await this.shopService.create(shop, req.user);
   }
 
   @ApiOkResponse({ description: 'Успешно' })
@@ -48,22 +53,25 @@ export class ShopController {
   @ApiOkResponse({ description: 'Успешно' })
   @ApiOperation({ summary: 'Обновление данных магазина' })
   @ApiCookieAuth()
-  @UseGuards(JwtAuthGuard, CheckGuard)
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   async update(
-    @Param('id') id: number,
+    @Param('id') shopId: number,
     @Body() shop: UpdateShopDto,
+    @Req() req,
   ): Promise<void> {
-    await this.shopService.update(id, shop);
+    await this.shopService.checkShop(req.user.id, shopId);
+    await this.shopService.update(shopId, shop);
   }
 
   @ApiOkResponse({ description: 'Успешно' })
   @ApiOperation({ summary: 'Удаление магазина по id' })
   @ApiCookieAuth()
-  @UseGuards(JwtAuthGuard, CheckGuard)
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  async delete(@Param('id') id: number): Promise<void> {
-    await this.shopService.delete(id);
+  async delete(@Param('id') shopId: number, @Req() req): Promise<void> {
+    await this.shopService.checkShop(req.user.id, shopId);
+    await this.shopService.delete(shopId);
   }
 
   @ApiOkResponse({ description: 'Успешно' })
