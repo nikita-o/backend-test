@@ -1,26 +1,33 @@
 import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
-import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiConflictResponse,
+  ApiCreatedResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegistrationDto } from './dto/registration.dto';
-import { CheckNameGuard } from './guards/checkName.guard';
 import { LocalAuthGuard } from './guards/localAuth.guard';
 
 @ApiTags('auth')
+@ApiCreatedResponse({ description: 'Успешно' })
+@ApiBadRequestResponse({ description: 'Ошибка валидации данных' })
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
   @ApiOperation({ summary: 'Регистрация' })
-  @ApiCreatedResponse({ description: 'Успешная регистрация' })
-  @UseGuards(CheckNameGuard)
+  @ApiConflictResponse({ description: 'Такое имя уже занято' })
   @Post('registration')
   async registration(@Body() userDto: RegistrationDto): Promise<void> {
     await this.authService.registration(userDto);
   }
 
   @ApiOperation({ summary: 'Логин' })
-  @ApiCreatedResponse({ description: 'Успешная авторизация' })
+  @ApiUnauthorizedResponse({ description: 'Или имя, или пароль неверно' })
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(

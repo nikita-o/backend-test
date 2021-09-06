@@ -28,6 +28,14 @@ export class ProductService {
       });
   }
 
+  async checkShop(userId: number, shopId: number) {
+    await this.shopRepository
+      .findOneOrFail(shopId, { where: { owner: userId } })
+      .catch(e => {
+        throw new HttpException('no owner shop', HttpStatus.CONFLICT);
+      });
+  }
+
   async create(productDto: CreateProductDto, owner: User): Promise<void> {
     const product: Product = this.productRepository.create({
       ...productDto,

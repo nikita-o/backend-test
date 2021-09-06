@@ -8,23 +8,29 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
+  ApiConflictResponse,
   ApiCookieAuth,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
 import { StatistikService } from './statistik.service';
 
 @ApiTags('statistics')
+@ApiBadRequestResponse({ description: 'Ошибка валидации данных' })
+@ApiUnauthorizedResponse({ description: 'Пользователь не авторизован' })
 @ApiCookieAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('statistics')
 export class StatistikController {
   constructor(private statistikService: StatistikService) {}
 
-  @ApiOkResponse({ description: 'Успешно' })
   @ApiOperation({ summary: 'Статистика по магазину' })
+  @ApiOkResponse({ description: 'Успешно' })
+  @ApiConflictResponse({ description: 'Магазин не принадлежит пользователю' })
   @Get('statisticsShop/:id')
   async statisticsShop(
     @Param('id', ParseIntPipe) shopId: number,
@@ -58,8 +64,9 @@ export class StatistikController {
     return await this.statistikService.statisticsPurchaseUser(req.user.id);
   }
 
-  @ApiOkResponse({ description: 'Успешно' })
   @ApiOperation({ summary: 'Статистика по товару' })
+  @ApiOkResponse({ description: 'Успешно' })
+  @ApiConflictResponse({ description: 'Товар не принадлежит пользователю' })
   @Get('statisticsSalesProduct/:id')
   async statisticsSalesProduct(
     @Param('id') productId: number,

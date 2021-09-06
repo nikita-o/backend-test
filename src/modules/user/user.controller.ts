@@ -8,13 +8,21 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiCookieAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiCookieAuth,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { User } from 'src/entities/user.entity';
 import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
 import { UpdateUserDto } from './dto/updateUserDto.dto';
 import { UserService } from './user.service';
 
 @ApiTags('user')
+@ApiBadRequestResponse({ description: 'Ошибка валидации данных' })
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
@@ -33,8 +41,9 @@ export class UserController {
     return await this.userService.getByName(name);
   }
 
-  @ApiOkResponse({ description: 'Успешно' })
   @ApiOperation({ summary: 'Обновление данных пользователя' })
+  @ApiOkResponse({ description: 'Успешно' })
+  @ApiUnauthorizedResponse({ description: 'Пользователь не авторизован' })
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Patch()
@@ -44,6 +53,7 @@ export class UserController {
 
   @ApiOkResponse({ description: 'Успешно' })
   @ApiOperation({ summary: 'Удаление пользователя' })
+  @ApiUnauthorizedResponse({ description: 'Пользователь не авторизован' })
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Delete()

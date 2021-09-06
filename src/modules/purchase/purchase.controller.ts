@@ -9,11 +9,14 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
+  ApiConflictResponse,
   ApiCookieAuth,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { Basket } from 'src/entities/basket.entity';
 import { Order } from 'src/entities/order.entity';
@@ -21,6 +24,8 @@ import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
 import { PurchaseService } from './purchase.service';
 
 @ApiTags('purchase')
+@ApiBadRequestResponse({ description: 'Ошибка валидации данных' })
+@ApiUnauthorizedResponse({ description: 'Пользователь не авторизован' })
 @ApiCookieAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('purchase')
@@ -76,6 +81,7 @@ export class PurchaseController {
 
   @ApiOperation({ summary: 'Просмотр неподтвержденных покупок в магазине' })
   @ApiOkResponse({ description: 'Успешно' })
+  @ApiConflictResponse({ description: 'Магазин не принадлежит пользователю' })
   @Get('showPurchaseShop')
   async showPurchaseShop(
     @Query('shopId', ParseIntPipe) shopId: number,
@@ -86,6 +92,7 @@ export class PurchaseController {
   }
 
   @ApiOperation({ summary: 'Подтверждение покупки (продавцом)' })
+  @ApiConflictResponse({ description: 'Документ не принадлежит пользователю' })
   @ApiCreatedResponse({ description: 'Успешно' })
   @Post('sellerProofPurchase')
   async sellerProofPurchase(
@@ -98,6 +105,7 @@ export class PurchaseController {
 
   @ApiOperation({ summary: 'Отклонение покупки (продавцом)' })
   @ApiCreatedResponse({ description: 'Успешно' })
+  @ApiConflictResponse({ description: 'Документ не принадлежит пользователю' })
   @Delete('sellerProofPurchase')
   async sellerRejectionPurchase(
     @Query('orderId', ParseIntPipe) orderId: number,
@@ -109,6 +117,7 @@ export class PurchaseController {
 
   @ApiOperation({ summary: 'Просмотр всех покупок в магазине' })
   @ApiOkResponse({ description: 'Успешно' })
+  @ApiConflictResponse({ description: 'Магазин не принадлежит пользователю' })
   @Get('showAllPurchaseShop')
   async showAllPurchaseShop(
     @Query('shopId', ParseIntPipe) shopId: number,

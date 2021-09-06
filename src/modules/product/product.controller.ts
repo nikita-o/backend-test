@@ -11,11 +11,14 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
+  ApiConflictResponse,
   ApiCookieAuth,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { Product } from 'src/entities/product.entity';
 import { ProductRest } from 'src/entities/productRest.entity';
@@ -27,12 +30,14 @@ import { UpdateProductDto } from './dto/updateProductDto.dto';
 import { ProductService } from './product.service';
 
 @ApiTags('product')
+@ApiBadRequestResponse({ description: 'Ошибка валидации данных' })
 @Controller('product')
 export class ProductController {
   constructor(private productService: ProductService) {}
 
-  @ApiCreatedResponse({ description: 'Успешно' })
   @ApiOperation({ summary: 'Создание товара' })
+  @ApiCreatedResponse({ description: 'Успешно' })
+  @ApiUnauthorizedResponse({ description: 'Пользователь не авторизован' })
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Post()
@@ -40,8 +45,12 @@ export class ProductController {
     await this.productService.create(shop, req.user);
   }
 
-  @ApiCreatedResponse({ description: 'Успешно' })
   @ApiOperation({ summary: 'Добавление товара в магазин' })
+  @ApiCreatedResponse({ description: 'Успешно' })
+  @ApiConflictResponse({
+    description: 'Товар / магазин, не принадлежит пользователю',
+  })
+  @ApiUnauthorizedResponse({ description: 'Пользователь не авторизован' })
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Post('addInShop')
@@ -50,6 +59,7 @@ export class ProductController {
     @Req() req,
   ): Promise<void> {
     const { shopId, productId, count } = productRest;
+    await this.productService.checkShop(req.user.id, shopId);
     await this.productService.checkProduct(req.user.id, productId);
     await this.productService.addToStore(shopId, productId, count);
   }
@@ -78,8 +88,10 @@ export class ProductController {
     return await this.productService.getByName(name);
   }
 
-  @ApiOkResponse({ description: 'Успешно' })
   @ApiOperation({ summary: 'Обновление товара по id' })
+  @ApiOkResponse({ description: 'Успешно' })
+  @ApiConflictResponse({ description: 'Товар не принадлежит пользователю' })
+  @ApiUnauthorizedResponse({ description: 'Пользователь не авторизован' })
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
@@ -92,8 +104,10 @@ export class ProductController {
     await this.productService.update(productId, product);
   }
 
-  @ApiOkResponse({ description: 'Успешно' })
   @ApiOperation({ summary: 'Удаление товара по id' })
+  @ApiOkResponse({ description: 'Успешно' })
+  @ApiConflictResponse({ description: 'Товар не принадлежит пользователю' })
+  @ApiUnauthorizedResponse({ description: 'Пользователь не авторизован' })
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Delete(':id')

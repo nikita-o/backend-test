@@ -6,7 +6,6 @@ import * as bcrypt from 'bcrypt';
 import { User } from 'src/entities/user.entity';
 import { QueryFailedError, Repository } from 'typeorm';
 import { RegistrationDto } from './dto/registration.dto';
-import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {

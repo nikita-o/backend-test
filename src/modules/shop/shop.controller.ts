@@ -10,11 +10,14 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
+  ApiConflictResponse,
   ApiCookieAuth,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { Shop } from 'src/entities/shop.entity';
 import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
@@ -23,6 +26,7 @@ import { UpdateShopDto } from './dto/updateShopDto.dto';
 import { ShopService } from './shop.service';
 
 @ApiTags('shop')
+@ApiBadRequestResponse({ description: 'Ошибка валидации данных' })
 @Controller('shop')
 export class ShopController {
   constructor(private shopService: ShopService) {}
@@ -50,8 +54,10 @@ export class ShopController {
     return await this.shopService.getByName(name);
   }
 
-  @ApiOkResponse({ description: 'Успешно' })
   @ApiOperation({ summary: 'Обновление данных магазина' })
+  @ApiOkResponse({ description: 'Успешно' })
+  @ApiConflictResponse({ description: 'Магазин не принадлежит пользователю' })
+  @ApiUnauthorizedResponse({ description: 'Пользователь не авторизован' })
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
@@ -64,8 +70,9 @@ export class ShopController {
     await this.shopService.update(shopId, shop);
   }
 
-  @ApiOkResponse({ description: 'Успешно' })
   @ApiOperation({ summary: 'Удаление магазина по id' })
+  @ApiOkResponse({ description: 'Успешно' })
+  @ApiConflictResponse({ description: 'Магазин не принадлежит пользователю' })
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
