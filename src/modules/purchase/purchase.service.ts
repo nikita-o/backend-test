@@ -97,6 +97,7 @@ export class PurchaseService {
       0,
     );
     const order: Order = await this.orderRepository.save({
+      seller: shop.owner,
       shop,
       buyer,
       totalSum,

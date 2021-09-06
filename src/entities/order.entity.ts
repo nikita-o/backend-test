@@ -16,6 +16,9 @@ export class Order {
   shop: Shop;
 
   @ManyToOne(type => User)
+  seller: User;
+
+  @ManyToOne(type => User)
   buyer: User;
 
   @Column()

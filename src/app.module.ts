@@ -1,4 +1,4 @@
-import { StatistikModule } from './modules/statistik/statistik.module';
+import { StatistikModule } from './modules/statistik/statistics.module';
 import { PurchaseModule } from './modules/purchase/purchase.module';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';

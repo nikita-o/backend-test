@@ -1,13 +1,16 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Order } from 'src/entities/order.entity';
 import { Product } from 'src/entities/product.entity';
 import { Shop } from 'src/entities/shop.entity';
 import { User } from 'src/entities/user.entity';
-import { Repository } from 'typeorm';
+import { Between, MoreThanOrEqual, Repository } from 'typeorm';
 
 @Injectable()
-export class StatistikService {
+export class StatisticsService {
   constructor(
+    @InjectRepository(Order)
+    private orderRepository: Repository<Order>,
     @InjectRepository(Shop)
     private shopRepository: Repository<Shop>,
     @InjectRepository(User)
@@ -32,19 +35,36 @@ export class StatistikService {
       });
   }
 
-  async statisticsShop(shopId: number): Promise<any> {
-    return {};
+  async statisticsShop(
+    shopId: number,
+    from: Date,
+    after: Date,
+  ): Promise<Order[]> {
+    return await this.orderRepository.find({
+      where: { shop: shopId, updateAt: Between(from, after) },
+      relations: ['ordersContent'],
+    });
   }
 
-  async statisticsSalesUser(userId: number): Promise<any> {
-    return {};
+  async statisticsSalesUser(
+    userId: number,
+    from: Date,
+    after: Date,
+  ): Promise<Order[]> {
+    return await this.orderRepository.find({
+      where: { buyer: userId, updateAt: Between(from, after) },
+      relations: ['ordersContent'],
+    });
   }
 
-  async statisticsPurchaseUser(userId: number): Promise<any> {
-    return {};
-  }
-
-  async statisticsSalesProduct(productId: number): Promise<any> {
-    return {};
+  async statisticsPurchaseUser(
+    userId: number,
+    from: Date,
+    after: Date,
+  ): Promise<Order[]> {
+    return await this.orderRepository.find({
+      where: { seller: userId, updateAt: Between(from, after) },
+      relations: ['ordersContent'],
+    });
   }
 }

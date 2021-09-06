@@ -17,7 +17,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
-import { StatistikService } from './statistik.service';
+import { StatisticsService } from './statistics.service';
 
 @ApiTags('statistics')
 @ApiBadRequestResponse({ description: 'Ошибка валидации данных' })
@@ -26,7 +26,7 @@ import { StatistikService } from './statistik.service';
 @UseGuards(JwtAuthGuard)
 @Controller('statistics')
 export class StatistikController {
-  constructor(private statistikService: StatistikService) {}
+  constructor(private statistikService: StatisticsService) {}
 
   @ApiOperation({ summary: 'Статистика по магазину' })
   @ApiOkResponse({ description: 'Успешно' })
@@ -34,47 +34,41 @@ export class StatistikController {
   @Get('statisticsShop/:id')
   async statisticsShop(
     @Param('id', ParseIntPipe) shopId: number,
-    @Query('from', ParseIntPipe) from: number,
-    @Query('after', ParseIntPipe) after: number,
+    @Query('from') from: Date,
+    @Query('after') after: Date,
     @Req() req,
   ): Promise<any> {
     await this.statistikService.checkShop(req.user.id, shopId);
-    return await this.statistikService.statisticsShop(shopId);
+    return await this.statistikService.statisticsShop(shopId, from, after);
   }
 
   @ApiOkResponse({ description: 'Успешно' })
   @ApiOperation({ summary: 'Статистика по продажам' })
   @Get('statisticsSalesUser/:id')
   async statisticsSalesUser(
-    @Query('from', ParseIntPipe) from: number,
-    @Query('after', ParseIntPipe) after: number,
+    @Query('from', ParseIntPipe) from: Date,
+    @Query('after', ParseIntPipe) after: Date,
     @Req() req,
   ): Promise<any> {
-    return await this.statistikService.statisticsSalesUser(req.user.id);
+    return await this.statistikService.statisticsSalesUser(
+      req.user.id,
+      from,
+      after,
+    );
   }
 
   @ApiOkResponse({ description: 'Успешно' })
   @ApiOperation({ summary: 'Статистика по покупкам' })
   @Get('statisticsPurchaseUser/:id')
   async statisticsPurchaseUser(
-    @Query('from', ParseIntPipe) from: number,
-    @Query('after', ParseIntPipe) after: number,
+    @Query('from', ParseIntPipe) from: Date,
+    @Query('after', ParseIntPipe) after: Date,
     @Req() req,
   ): Promise<any> {
-    return await this.statistikService.statisticsPurchaseUser(req.user.id);
-  }
-
-  @ApiOperation({ summary: 'Статистика по товару' })
-  @ApiOkResponse({ description: 'Успешно' })
-  @ApiConflictResponse({ description: 'Товар не принадлежит пользователю' })
-  @Get('statisticsSalesProduct/:id')
-  async statisticsSalesProduct(
-    @Param('id') productId: number,
-    @Query('from', ParseIntPipe) from: number,
-    @Query('after', ParseIntPipe) after: number,
-    @Req() req,
-  ): Promise<any> {
-    await this.statistikService.checkProduct(req.user.id, productId);
-    return await this.statistikService.statisticsSalesProduct(productId);
+    return await this.statistikService.statisticsPurchaseUser(
+      req.user.id,
+      from,
+      after,
+    );
   }
 }
