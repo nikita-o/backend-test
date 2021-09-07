@@ -1,17 +1,19 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable prettier/prettier */
 
-import { Column, CreateDateColumn, Entity, ManyToOne, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryColumn, UpdateDateColumn } from 'typeorm';
 import { Product } from './product.entity';
 import { Shop } from './shop.entity';
 
 @Entity()
 export class ProductRest {
-  @ManyToOne(type => Shop, { primary: true })
-  shop: Shop;
+  @PrimaryColumn({name: 'shopId'})
+  @ManyToOne(type => Shop, { onDelete: 'CASCADE' })
+  shop: Shop | number;
 
-  @ManyToOne(type => Product, { primary: true })
-  product: Product;
+  @PrimaryColumn({name: 'productId'})
+  @ManyToOne(type => Product, { onDelete: 'CASCADE' })
+  product: Product | number;
 
   @Column()
   count: number;

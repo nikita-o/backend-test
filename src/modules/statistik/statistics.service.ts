@@ -4,7 +4,7 @@ import { Order } from 'src/entities/order.entity';
 import { Product } from 'src/entities/product.entity';
 import { Shop } from 'src/entities/shop.entity';
 import { User } from 'src/entities/user.entity';
-import { Between, MoreThanOrEqual, Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 
 @Injectable()
 export class StatisticsService {

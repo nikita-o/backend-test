@@ -46,8 +46,8 @@ export class StatistikController {
   @ApiOperation({ summary: 'Статистика по продажам' })
   @Get('statisticsSalesUser/:id')
   async statisticsSalesUser(
-    @Query('from', ParseIntPipe) from: Date,
-    @Query('after', ParseIntPipe) after: Date,
+    @Query('from') from: Date,
+    @Query('after') after: Date,
     @Req() req,
   ): Promise<any> {
     return await this.statistikService.statisticsSalesUser(
@@ -61,8 +61,8 @@ export class StatistikController {
   @ApiOperation({ summary: 'Статистика по покупкам' })
   @Get('statisticsPurchaseUser/:id')
   async statisticsPurchaseUser(
-    @Query('from', ParseIntPipe) from: Date,
-    @Query('after', ParseIntPipe) after: Date,
+    @Query('from') from: Date,
+    @Query('after') after: Date,
     @Req() req,
   ): Promise<any> {
     return await this.statistikService.statisticsPurchaseUser(

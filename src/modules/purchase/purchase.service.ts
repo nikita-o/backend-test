@@ -4,6 +4,7 @@ import { Basket } from 'src/entities/basket.entity';
 import { Order } from 'src/entities/order.entity';
 import { OrderContent } from 'src/entities/orderContent.entity';
 import { Product } from 'src/entities/product.entity';
+import { ProductRest } from 'src/entities/productRest.entity';
 import { Shop } from 'src/entities/shop.entity';
 import { User } from 'src/entities/user.entity';
 import { Repository } from 'typeorm';
@@ -17,8 +18,8 @@ export class PurchaseService {
     private shopRepository: Repository<Shop>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
-    @InjectRepository(Product)
-    private productRepository: Repository<Product>,
+    @InjectRepository(ProductRest)
+    private productRestRepository: Repository<ProductRest>,
     @InjectRepository(Order)
     private orderRepository: Repository<Order>,
     @InjectRepository(OrderContent)
@@ -27,7 +28,7 @@ export class PurchaseService {
 
   async checkPurchase(userId: number, orderId: number) {
     await this.orderRepository
-      .findOneOrFail(orderId, { where: { owner: userId } })
+      .findOneOrFail(orderId, { where: { seller: userId } })
       .catch(() => {
         throw new HttpException('no owner purchase', HttpStatus.CONFLICT);
       });
@@ -47,16 +48,14 @@ export class PurchaseService {
     productId: number,
     count: number,
   ): Promise<void> {
-    // const product: Product = await this.productRepository.findOneOrFail(
-    //   productId,
-    // );
-
-    const { rowId }: Basket = await this.basketRepository.findOne({
+    const basket: Basket = await this.basketRepository.findOne({
       where: { shop: shopId, buyer: buyerId, product: productId },
+      select: ['rowId'],
     });
-    if (rowId) {
+
+    if (basket?.rowId) {
       await this.basketRepository.update(
-        { shop: shopId, buyer: buyerId, rowId },
+        { shop: shopId, buyer: buyerId, rowId: basket.rowId },
         { count },
       );
       return;
@@ -85,12 +84,28 @@ export class PurchaseService {
   }
 
   async buyerProofPurchase(shopId: number, buyerId: number): Promise<void> {
-    const shop: Shop = await this.shopRepository.findOneOrFail(shopId);
+    const shop: Shop = await this.shopRepository.findOneOrFail(shopId, {
+      relations: ['owner'],
+    });
     const buyer: User = await this.userRepository.findOneOrFail(buyerId);
     const baskets: Basket[] = await this.basketRepository.find({
       where: { shop: shop, buyer: buyer },
       relations: ['product'],
     });
+
+    for (const i of baskets) {
+      const product = i.product;
+      const { count } = await this.productRestRepository.findOne(
+        { shop, product },
+        { select: ['count'] },
+      );
+      if (i.count > count) {
+        throw new HttpException(
+          `no required quantity for product with id: ${(<Product>i.product).id}`,
+          HttpStatus.CONFLICT,
+        );
+      }
+    }
 
     const totalSum: number = baskets.reduce(
       (prev, current) => prev + (<Product>current.product).price * current.count,
@@ -110,6 +125,7 @@ export class PurchaseService {
         price: (<Product>basket.product).price,
         sum: (<Product>basket.product).price * basket.count,
       });
+      await this.basketRepository.delete({ shop, buyer, rowId: basket.rowId });
     });
   }
 
@@ -121,10 +137,49 @@ export class PurchaseService {
   }
 
   async sellerProofPurchase(orderId: number): Promise<void> {
+    const order: Order = await this.orderRepository.findOne(orderId, {
+      relations: ['ordersContent', 'shop'],
+    });
+    if (order.checked) {
+      throw new HttpException(
+        'Sale has already been confirmed',
+        HttpStatus.CONFLICT,
+      );
+    }
+    const { shop, ordersContent } = order;
+    ordersContent.forEach(async (i: OrderContent) => {
+      const { product } = await this.orderContentRepository.findOne(
+        { order: orderId, rowId: i.rowId },
+        { relations: ['product'] },
+      );
+      const { count } = await this.productRestRepository.findOne(
+        { shop, product },
+        { select: ['count'] },
+      );
+      // if (i.count > count) {
+      //   throw new HttpException(
+      //     `no required quantity for product with id: ${(<Product>i.product).id}`,
+      //     HttpStatus.CONFLICT,
+      //   );
+      // }
+      this.productRestRepository.update(
+        { shop, product },
+        { count: count - i.count },
+      );
+    });
     await this.orderRepository.update(orderId, { checked: true });
   }
 
   async sellerRejectionPurchase(orderId: number): Promise<void> {
+    const { checked } = await this.orderRepository.findOneOrFail(orderId, {
+      select: ['checked'],
+    });
+    if (checked) {
+      throw new HttpException(
+        'Sale has already been confirmed',
+        HttpStatus.CONFLICT,
+      );
+    }
     await this.orderRepository.delete(orderId);
   }
 

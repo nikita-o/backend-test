@@ -51,15 +51,15 @@ export class UserController {
     await this.userService.update(req.user.id, user);
   }
 
-  @ApiOkResponse({ description: 'Успешно' })
-  @ApiOperation({ summary: 'Удаление пользователя' })
-  @ApiUnauthorizedResponse({ description: 'Пользователь не авторизован' })
-  @ApiCookieAuth()
-  @UseGuards(JwtAuthGuard)
-  @Delete()
-  async delete(@Req() req): Promise<void> {
-    await this.userService.delete(req.user.id);
-  }
+  // @ApiOkResponse({ description: 'Успешно' })
+  // @ApiOperation({ summary: 'Удаление пользователя' })
+  // @ApiUnauthorizedResponse({ description: 'Пользователь не авторизован' })
+  // @ApiCookieAuth()
+  // @UseGuards(JwtAuthGuard)
+  // @Delete()
+  // async delete(@Req() req): Promise<void> {
+  //   await this.userService.delete(req.user.id);
+  // }
 
   @ApiOkResponse({ description: 'Успешно' })
   @ApiOperation({ summary: 'Получение пользователя по id' })

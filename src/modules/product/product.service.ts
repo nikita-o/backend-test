@@ -49,9 +49,22 @@ export class ProductService {
     productId: number,
     count: number,
   ): Promise<void> {
-    const shop: Shop = await this.shopRepository.findOne(shopId);
-    const product: Product = await this.productRepository.findOne(productId);
-    await this.productRestRepository.save({ shop, product, count });
+    const store = await this.productRestRepository.findOne({
+      shop: shopId,
+      product: productId,
+    });
+    if (store) {
+      await this.productRestRepository.update(
+        { shop: shopId, product: productId },
+        { count },
+      );
+      return;
+    }
+    await this.productRestRepository.save({
+      shop: shopId,
+      product: productId,
+      count,
+    });
   }
 
   async getPage(page: number, count = 10): Promise<Product[]> {
@@ -75,22 +88,14 @@ export class ProductService {
   }
 
   async getById(id: number): Promise<Product> {
-    return await this.productRepository.findOne(id, {
-      select: ['id', 'name'],
-    });
+    return await this.productRepository.findOne(id);
   }
 
   async getByName(name: string): Promise<Product[]> {
-    return await this.productRepository.find({
-      where: { name },
-      select: ['id', 'name'],
-    });
+    return await this.productRepository.find({ where: { name } });
   }
 
   async update(id: number, userDto: UpdateProductDto): Promise<void> {
-    // const user: User = this.productRepository.create({
-    //   name: userDto.name,
-    // });
     await this.productRepository.update(id, userDto);
   }
 

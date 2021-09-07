@@ -8,6 +8,7 @@ import { User } from 'src/entities/user.entity';
 import { Product } from 'src/entities/product.entity';
 import { Order } from 'src/entities/order.entity';
 import { OrderContent } from 'src/entities/orderContent.entity';
+import { ProductRest } from 'src/entities/productRest.entity';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { OrderContent } from 'src/entities/orderContent.entity';
       Product,
       Order,
       OrderContent,
+      ProductRest,
     ]),
   ],
   controllers: [PurchaseController],

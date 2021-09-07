@@ -8,13 +8,13 @@ import { Product } from './product.entity';
 @Entity()
 export class OrderContent {
   @PrimaryColumn({name: 'orderId'})
-  @ManyToOne(type => Order)
+  @ManyToOne(type => Order, { onDelete: 'CASCADE' })
   order: Order | number;
 
   @PrimaryGeneratedColumn()
   rowId: number;
 
-  @ManyToOne(type => Product)
+  @ManyToOne(type => Product, { onDelete: 'NO ACTION' })
   product: Product;
 
   @Column()

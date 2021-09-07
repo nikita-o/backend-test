@@ -9,7 +9,7 @@ import { User } from './user.entity';
 @Entity()
 export class Basket {
   @PrimaryColumn({name: 'shopId'})
-  @ManyToOne(type => Shop)
+  @ManyToOne(type => Shop, { onDelete: 'CASCADE' })
   shop: Shop | number;
 
   @PrimaryColumn({name: 'buyerId'})
@@ -20,7 +20,7 @@ export class Basket {
   @PrimaryGeneratedColumn()
   rowId: number;
 
-  @ManyToOne(type => Product)
+  @ManyToOne(type => Product, { onDelete: 'CASCADE' })
   product: Product | number;
 
   @Column()
