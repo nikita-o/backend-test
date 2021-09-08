@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   Param,
   Patch,
@@ -16,6 +15,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+
 import { User } from 'src/entities/user.entity';
 import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
 import { UpdateUserDto } from './dto/updateUserDto.dto';
@@ -47,7 +47,7 @@ export class UserController {
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Patch()
-  async update(@Req() req, @Body() user: UpdateUserDto): Promise<void> {
+  async update(@Req() req: any, @Body() user: UpdateUserDto): Promise<void> {
     await this.userService.update(req.user.id, user);
   }
 

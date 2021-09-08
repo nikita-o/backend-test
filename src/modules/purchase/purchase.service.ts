@@ -1,5 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
 import { Basket } from 'src/entities/basket.entity';
 import { Order } from 'src/entities/order.entity';
 import { OrderContent } from 'src/entities/orderContent.entity';
@@ -7,7 +9,6 @@ import { Product } from 'src/entities/product.entity';
 import { ProductRest } from 'src/entities/productRest.entity';
 import { Shop } from 'src/entities/shop.entity';
 import { User } from 'src/entities/user.entity';
-import { Repository } from 'typeorm';
 
 @Injectable()
 export class PurchaseService {
@@ -26,15 +27,15 @@ export class PurchaseService {
     private orderContentRepository: Repository<OrderContent>,
   ) {}
 
-  async checkPurchase(userId: number, orderId: number) {
+  async checkPurchase(userId: number, orderId: number): Promise<void> {
     await this.orderRepository
       .findOneOrFail(orderId, { where: { seller: userId } })
-      .catch(() => {
+      .catch(e => {
         throw new HttpException('no owner purchase', HttpStatus.CONFLICT);
       });
   }
 
-  async checkShop(userId: number, shopId: number) {
+  async checkShop(userId: number, shopId: number): Promise<void> {
     await this.shopRepository
       .findOneOrFail(shopId, { where: { owner: userId } })
       .catch(e => {
@@ -101,14 +102,15 @@ export class PurchaseService {
       );
       if (i.count > count) {
         throw new HttpException(
-          `no required quantity for product with id: ${(<Product>i.product).id}`,
+          `no required quantity for product with id: 
+          ${(<Product>i.product).id}`,
           HttpStatus.CONFLICT,
         );
       }
     }
 
     const totalSum: number = baskets.reduce(
-      (prev, current) => prev + (<Product>current.product).price * current.count,
+      (prev, cur) => prev + (<Product>cur.product).price * cur.count,
       0,
     );
     const order: Order = await this.orderRepository.save({

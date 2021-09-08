@@ -1,10 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Between, Repository } from 'typeorm';
+
 import { Order } from 'src/entities/order.entity';
 import { Product } from 'src/entities/product.entity';
 import { Shop } from 'src/entities/shop.entity';
 import { User } from 'src/entities/user.entity';
-import { Between, Repository } from 'typeorm';
 
 @Injectable()
 export class StatisticsService {
@@ -19,7 +20,7 @@ export class StatisticsService {
     private productRepository: Repository<Product>,
   ) {}
 
-  async checkShop(userId: number, shopId: number) {
+  async checkShop(userId: number, shopId: number): Promise<void> {
     await this.shopRepository
       .findOneOrFail(shopId, { where: { owner: userId } })
       .catch(e => {
@@ -27,7 +28,7 @@ export class StatisticsService {
       });
   }
 
-  async checkProduct(userId: number, productId: number) {
+  async checkProduct(userId: number, productId: number): Promise<void> {
     await this.productRepository
       .findOneOrFail(productId, { where: { owner: userId } })
       .catch(e => {

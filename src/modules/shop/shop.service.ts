@@ -1,8 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
 import { Shop } from 'src/entities/shop.entity';
 import { User } from 'src/entities/user.entity';
-import { Repository } from 'typeorm';
+
 import { CreateShopDto } from './dto/createShopDto.dto';
 import { UpdateShopDto } from './dto/updateShopDto.dto';
 
@@ -13,7 +15,7 @@ export class ShopService {
     private shopRepository: Repository<Shop>,
   ) {}
 
-  async checkShop(userId: number, shopId: number) {
+  async checkShop(userId: number, shopId: number): Promise<void> {
     await this.shopRepository
       .findOneOrFail(shopId, { where: { owner: userId } })
       .catch(e => {

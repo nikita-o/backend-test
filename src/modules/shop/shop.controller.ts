@@ -19,6 +19,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+
 import { Shop } from 'src/entities/shop.entity';
 import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
 import { CreateShopDto } from './dto/createShopDto.dto';
@@ -36,7 +37,7 @@ export class ShopController {
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@Req() req, @Body() shop: CreateShopDto): Promise<void> {
+  async create(@Req() req: any, @Body() shop: CreateShopDto): Promise<void> {
     await this.shopService.create(shop, req.user);
   }
 
@@ -64,7 +65,7 @@ export class ShopController {
   async update(
     @Param('id') shopId: number,
     @Body() shop: UpdateShopDto,
-    @Req() req,
+    @Req() req: any,
   ): Promise<void> {
     await this.shopService.checkShop(req.user.id, shopId);
     await this.shopService.update(shopId, shop);
@@ -76,7 +77,7 @@ export class ShopController {
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  async delete(@Param('id') shopId: number, @Req() req): Promise<void> {
+  async delete(@Param('id') shopId: number, @Req() req: any): Promise<void> {
     await this.shopService.checkShop(req.user.id, shopId);
     await this.shopService.delete(shopId);
   }

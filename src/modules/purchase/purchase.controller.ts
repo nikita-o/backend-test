@@ -18,6 +18,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+
 import { Basket } from 'src/entities/basket.entity';
 import { Order } from 'src/entities/order.entity';
 import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
@@ -43,7 +44,7 @@ export class PurchaseController {
     @Query('shopId', ParseIntPipe) shopId: number,
     @Query('productId', ParseIntPipe) productId: number,
     @Query('count', ParseIntPipe) count: number,
-    @Req() req,
+    @Req() req: any,
   ): Promise<void> {
     await this.purchaseService.addCart(shopId, req.user.id, productId, count);
   }
@@ -54,7 +55,7 @@ export class PurchaseController {
   async deleteCart(
     @Query('shopId', ParseIntPipe) shopId: number,
     @Query('rowId', ParseIntPipe) rowId: number,
-    @Req() req,
+    @Req() req: any,
   ): Promise<void> {
     await this.purchaseService.deleteCart(shopId, req.user.id, rowId);
   }
@@ -64,7 +65,7 @@ export class PurchaseController {
   @Get('showCart')
   async showCart(
     @Query('shopId', ParseIntPipe) shopId: number,
-    @Req() req,
+    @Req() req: any,
   ): Promise<Basket[]> {
     return await this.purchaseService.showCart(shopId, req.user.id);
   }
@@ -74,7 +75,7 @@ export class PurchaseController {
   @Post('buyerProofPurchase')
   async buyerProofPurchase(
     @Query('shopId', ParseIntPipe) shopId: number,
-    @Req() req,
+    @Req() req: any,
   ): Promise<void> {
     await this.purchaseService.buyerProofPurchase(shopId, req.user.id);
   }
@@ -85,7 +86,7 @@ export class PurchaseController {
   @Get('showPurchaseShop')
   async showPurchaseShop(
     @Query('shopId', ParseIntPipe) shopId: number,
-    @Req() req,
+    @Req() req: any,
   ): Promise<Order[]> {
     await this.purchaseService.checkShop(req.user.id, shopId);
     return await this.purchaseService.showPurchaseShop(shopId);
@@ -97,7 +98,7 @@ export class PurchaseController {
   @Post('sellerProofPurchase')
   async sellerProofPurchase(
     @Query('orderId', ParseIntPipe) orderId: number,
-    @Req() req,
+    @Req() req: any,
   ): Promise<void> {
     await this.purchaseService.checkPurchase(req.user.id, orderId);
     await this.purchaseService.sellerProofPurchase(orderId);
@@ -109,7 +110,7 @@ export class PurchaseController {
   @Delete('sellerProofPurchase')
   async sellerRejectionPurchase(
     @Query('orderId', ParseIntPipe) orderId: number,
-    @Req() req,
+    @Req() req: any,
   ): Promise<void> {
     await this.purchaseService.checkPurchase(req.user.id, orderId);
     await this.purchaseService.sellerRejectionPurchase(orderId);
@@ -121,7 +122,7 @@ export class PurchaseController {
   @Get('showAllPurchaseShop')
   async showAllPurchaseShop(
     @Query('shopId', ParseIntPipe) shopId: number,
-    @Req() req,
+    @Req() req: any,
   ): Promise<Order[]> {
     await this.purchaseService.checkShop(req.user.id, shopId);
     return await this.purchaseService.showAllPurchaseShop(shopId);

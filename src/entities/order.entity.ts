@@ -1,7 +1,12 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable prettier/prettier */
-
-import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryColumn, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { OrderContent } from './orderContent.entity';
 import { Shop } from './shop.entity';
 import { User } from './user.entity';
@@ -23,7 +28,7 @@ export class Order {
   @Column()
   totalSum: number;
 
-  @Column({default: false})
+  @Column({ default: false })
   checked: boolean;
 
   @CreateDateColumn()
@@ -35,5 +40,5 @@ export class Order {
   // ---
 
   @OneToMany(type => OrderContent, orderContent => orderContent.order)
-  ordersContent: OrderContent[]
+  ordersContent: OrderContent[];
 }

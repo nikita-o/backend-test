@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -20,14 +21,15 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+
 import { Product } from 'src/entities/product.entity';
 import { ProductRest } from 'src/entities/productRest.entity';
 import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
+import { ProductService } from './product.service';
+
 import { AddProductRestDto } from './dto/addProductRestDto.dto';
 import { CreateProductDto } from './dto/createProductDto.dto';
-import { GetProductInShopDto } from './dto/getProductInShop.dto';
 import { UpdateProductDto } from './dto/updateProductDto.dto';
-import { ProductService } from './product.service';
 
 @ApiTags('product')
 @ApiBadRequestResponse({ description: 'Ошибка валидации данных' })
@@ -41,7 +43,7 @@ export class ProductController {
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@Req() req, @Body() shop: CreateProductDto): Promise<void> {
+  async create(@Req() req: any, @Body() shop: CreateProductDto): Promise<void> {
     await this.productService.create(shop, req.user);
   }
 
@@ -56,7 +58,7 @@ export class ProductController {
   @Post('addInShop')
   async addToStore(
     @Body() productRest: AddProductRestDto,
-    @Req() req,
+    @Req() req: any,
   ): Promise<void> {
     const { shopId, productId, count } = productRest;
     await this.productService.checkShop(req.user.id, shopId);
@@ -75,9 +77,9 @@ export class ProductController {
   @ApiOperation({ summary: 'Получение товаров в магазине постранично' })
   @Get('shopProduct')
   async getPageByShop(
-    @Query() queryParams: GetProductInShopDto,
+    @Query('shopId', ParseIntPipe) shopId: number,
+    @Query('page', ParseIntPipe) page: number,
   ): Promise<ProductRest[]> {
-    const { shopId, page } = queryParams;
     return await this.productService.getPageByShop(shopId, page);
   }
 
@@ -98,7 +100,7 @@ export class ProductController {
   async update(
     @Param('id') productId: number,
     @Body() product: UpdateProductDto,
-    @Req() req,
+    @Req() req: any,
   ): Promise<void> {
     await this.productService.checkProduct(req.user.id, productId);
     await this.productService.update(productId, product);
@@ -111,7 +113,7 @@ export class ProductController {
   @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  async delete(@Param('id') productId: number, @Req() req): Promise<void> {
+  async delete(@Param('id') productId: number, @Req() req: any): Promise<void> {
     await this.productService.checkProduct(req.user.id, productId);
     await this.productService.delete(productId);
   }

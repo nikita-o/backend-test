@@ -1,10 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
+
+import { QueryFailedError, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
 import { User } from 'src/entities/user.entity';
-import { QueryFailedError, Repository } from 'typeorm';
 import { RegistrationDto } from './dto/registration.dto';
 
 @Injectable()

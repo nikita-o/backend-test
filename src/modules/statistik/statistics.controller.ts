@@ -16,6 +16,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+
 import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
 import { StatisticsService } from './statistics.service';
 
@@ -36,7 +37,7 @@ export class StatistikController {
     @Param('id', ParseIntPipe) shopId: number,
     @Query('from') from: Date,
     @Query('after') after: Date,
-    @Req() req,
+    @Req() req: any,
   ): Promise<any> {
     await this.statistikService.checkShop(req.user.id, shopId);
     return await this.statistikService.statisticsShop(shopId, from, after);
@@ -48,7 +49,7 @@ export class StatistikController {
   async statisticsSalesUser(
     @Query('from') from: Date,
     @Query('after') after: Date,
-    @Req() req,
+    @Req() req: any,
   ): Promise<any> {
     return await this.statistikService.statisticsSalesUser(
       req.user.id,
@@ -63,7 +64,7 @@ export class StatistikController {
   async statisticsPurchaseUser(
     @Query('from') from: Date,
     @Query('after') after: Date,
-    @Req() req,
+    @Req() req: any,
   ): Promise<any> {
     return await this.statistikService.statisticsPurchaseUser(
       req.user.id,

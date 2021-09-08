@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsString } from 'class-validator';
-import { CreateShopDto } from 'src/modules/shop/dto/createShopDto.dto';
 
 export class UpdateProductDto {
   @ApiProperty({ type: String, default: 'name', required: false })

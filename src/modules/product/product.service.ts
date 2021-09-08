@@ -1,11 +1,12 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
 import { Product } from 'src/entities/product.entity';
 import { ProductRest } from 'src/entities/productRest.entity';
 import { Shop } from 'src/entities/shop.entity';
 import { User } from 'src/entities/user.entity';
-import { Repository } from 'typeorm';
-import { AddProductRestDto } from './dto/addProductRestDto.dto';
+
 import { CreateProductDto } from './dto/createProductDto.dto';
 import { UpdateProductDto } from './dto/updateProductDto.dto';
 
@@ -20,7 +21,7 @@ export class ProductService {
     private productRestRepository: Repository<ProductRest>,
   ) {}
 
-  async checkProduct(userId: number, productId: number) {
+  async checkProduct(userId: number, productId: number): Promise<void> {
     await this.productRepository
       .findOneOrFail(productId, { where: { owner: userId } })
       .catch(e => {
@@ -28,7 +29,7 @@ export class ProductService {
       });
   }
 
-  async checkShop(userId: number, shopId: number) {
+  async checkShop(userId: number, shopId: number): Promise<void> {
     await this.shopRepository
       .findOneOrFail(shopId, { where: { owner: userId } })
       .catch(e => {
